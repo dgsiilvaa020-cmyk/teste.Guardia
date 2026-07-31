@@ -197,6 +197,30 @@ CREATE TABLE IF NOT EXISTS entregues (
 )
 """)
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS livros_pacotes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    pedido_id INTEGER,
+
+    numero_pacote INTEGER,
+
+    nome_livro TEXT,
+
+    autor TEXT,
+
+    serie TEXT,
+
+    numero_serie TEXT,
+
+    capa_id TEXT,
+
+    arquivo_id TEXT,
+
+    criado_em TEXT DEFAULT CURRENT_TIMESTAMP
+)
+""")
+
 conn.commit()
 
 pedido_selecionado = {}
