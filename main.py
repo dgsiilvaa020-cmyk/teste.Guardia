@@ -1206,6 +1206,39 @@ def menu_corrigir_ebooks(livros):
     kb.adjust(1)
 
     return kb.as_markup()
+
+def menu_edicao_livro(id_livro):
+
+    kb = InlineKeyboardBuilder()
+
+    kb.button(
+        text="📖 Corrigir nome do livro",
+        callback_data=f"editar_nome_{id_livro}"
+    )
+
+    kb.button(
+        text="✍️ Corrigir autor",
+        callback_data=f"editar_autor_{id_livro}"
+    )
+
+    kb.button(
+        text="📚 Corrigir série",
+        callback_data=f"editar_serie_{id_livro}"
+    )
+
+    kb.button(
+        text="🔢 Corrigir número da série",
+        callback_data=f"editar_numero_{id_livro}"
+    )
+
+    kb.button(
+        text="⬅️ Voltar",
+        callback_data="corrigir_ebook"
+    )
+
+    kb.adjust(1)
+
+    return kb.as_markup()
     
 @dp.message(Command("start"))
 async def start(message: Message):
@@ -2120,29 +2153,6 @@ async def receber_figurinha(message: Message):
     
     numero = numero_visual(id_pedido, status)
 
-    legenda = formatar_mensagem_config(
-        "msg_arquivo",
-        nome=nome,
-        id_pedido=id_pedido,
-        numero_missao=numero,
-        nome_livro=pacotes_pendentes[admin_id][0].get(
-            "nome_livro",
-            "Livro não informado"
-        ),
-        autor=pacotes_pendentes[admin_id][0].get(
-            "autor",
-            "Autor não informado"
-        ),
-        serie=pacotes_pendentes[admin_id][0].get(
-            "serie",
-            ""
-        ),
-        numero_serie=pacotes_pendentes[admin_id][0].get(
-            "numero_serie",
-            ""
-        )
-    )
-    
     for indice, pacote in enumerate(pacotes_pendentes[admin_id]):
 
 
@@ -2174,28 +2184,27 @@ async def receber_figurinha(message: Message):
 
         conn.commit()
     
-
         legenda = formatar_mensagem_config(
             "msg_arquivo",
             nome=nome,
             id_pedido=id_pedido,
             numero_missao=numero,
-            nome_livro=pacotes_pendentes[admin_id][0].get(
+            nome_livro=pacote.get(
                 "nome_livro",
                 "Livro não informado"
             ),
-            autor=pacotes_pendentes[admin_id][0].get(
+            autor=pacote.get(
                 "autor",
                 "Autor não informado"
             ),
-            serie=pacotes_pendentes[admin_id][0].get(
+            serie=pacote.get(
                 "serie",
                 ""
             ),
-            numero_serie=pacotes_pendentes[admin_id][0].get(
+            numero_serie=pacote.get(
                 "numero_serie",
                 ""
-            )        
+            )
         )
 
         caption = legenda
@@ -2633,6 +2642,55 @@ async def abrir_corrigir_ebook(callback: CallbackQuery):
     await callback.message.answer(
         "✏️ Escolha o eBook que deseja corrigir:",
         reply_markup=menu_corrigir_ebooks(livros)
+    )
+
+@dp.callback_query(F.data.startswith("corrigir_livro_"))
+async def corrigir_livro(callback: CallbackQuery):
+
+    if not autorizado(callback.from_user.id):
+        await callback.answer("Sem permissão.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    id_livro = int(
+        callback.data.replace(
+            "corrigir_livro_",
+            ""
+        )
+    )
+
+    cursor.execute("""
+    SELECT 
+        id,
+        nome_livro,
+        autor,
+        serie,
+        numero_serie
+    FROM livros_pacotes
+    WHERE id = ?
+    """, (id_livro,))
+
+    livro = cursor.fetchone()
+
+    if not livro:
+        await callback.message.answer(
+            "❌ Livro não encontrado."
+        )
+        return
+
+
+    _, nome, autor, serie, numero = livro
+
+
+    await callback.message.answer(
+        "✏️ Corrigir livro\n\n"
+        f"📖 Nome atual:\n{nome}\n\n"
+        f"✍️ Autor:\n{autor}\n\n"
+        f"📚 Série:\n{serie or 'Sem série'}\n"
+        f"🔢 Número:\n{numero or '-'}\n\n"
+        "Escolha o que deseja alterar:",
+        reply_markup=menu_edicao_livro(id_livro)
     )
     
 
