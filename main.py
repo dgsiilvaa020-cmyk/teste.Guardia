@@ -1555,19 +1555,17 @@ async def receber_texto_personalizado(message: Message):
 
         return
 
-        if modo_edicao.get(message.from_user.id) == "corrigir_autor":
+    if modo_edicao.get(message.from_user.id) == "corrigir_autor":
 
         pedido_id = livro_correcao_selecionado.get(
             message.from_user.id
         )
-
 
         if not pedido_id:
             await message.answer(
                 "⚠️ Nenhum livro selecionado."
             )
             return
-
 
         cursor.execute("""
         UPDATE livros_pacotes
@@ -1581,7 +1579,6 @@ async def receber_texto_personalizado(message: Message):
 
         conn.commit()
 
-
         modo_edicao.pop(
             message.from_user.id,
             None
@@ -1592,13 +1589,12 @@ async def receber_texto_personalizado(message: Message):
             None
         )
 
-
         await message.answer(
             "✅ Autor corrigido com sucesso!"
         )
 
         return
-
+    
     chave = modo_edicao.get(message.from_user.id)
 
     if not chave:
