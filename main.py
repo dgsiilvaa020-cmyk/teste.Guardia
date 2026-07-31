@@ -210,6 +210,7 @@ CREATE TABLE IF NOT EXISTS livros_pacotes (
     arquivo_id TEXT,
     criado_em TEXT DEFAULT CURRENT_TIMESTAMP
 )
+""")
 
 conn.commit()
 
