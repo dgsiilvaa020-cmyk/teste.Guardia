@@ -153,11 +153,19 @@ cursor = conn.cursor()
 
 try:
     cursor.execute("""
-        ALTER TABLE pedidos
-        ADD COLUMN msg_registrada_id INTEGER
+    ALTER TABLE pedidos
+    ADD COLUMN msg_registrada_id INTEGER
     """)
     conn.commit()
 except sqlite3.OperationalError:
+    pass
+
+try:
+    cursor.execute("""
+    ALTER TABLE livros_pacotes
+    ADD COLUMN mensagem_acervo_id INTEGER
+    """)
+except:
     pass
 
 cursor.execute("""
@@ -181,8 +189,8 @@ CREATE TABLE IF NOT EXISTS pedidos (
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS config (
-    chave TEXT,
-    valor TEXT
+chave TEXT,
+valor TEXT
 )
 """)
 
@@ -208,7 +216,8 @@ CREATE TABLE IF NOT EXISTS livros_pacotes (
     numero_serie TEXT,
     capa_id TEXT,
     arquivo_id TEXT,
-    criado_em TEXT DEFAULT CURRENT_TIMESTAMP
+    criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+    mensagem_acervo_id INTEGER
 )
 """)
 
@@ -2353,6 +2362,18 @@ async def receber_figurinha(message: Message):
             parse_mode="HTML"
         )
 
+        cursor.execute("""
+        UPDATE livros_pacotes
+        SET mensagem_acervo_id = ?
+        WHERE pedido_id = ?
+        AND numero_pacote = ?
+        """, (
+            msg_acervo.message_id,
+            pedido_id,
+            indice + 1
+        ))
+        conn.commit()
+
         link_acervo = criar_link_mensagem(
             GRUPO_ACERVO,
             msg_acervo.message_id
@@ -2535,6 +2556,71 @@ async def nao_encontrei(callback: CallbackQuery):
         reply_markup=menu_pv()
     )
 
+@dp.callback_query(F.data.startswith("reenviar_"))
+async def reenviar_para_acervo(callback: CallbackQuery):
+
+    if not autorizado(callback.from_user.id):
+        await callback.answer("Sem permissão.", show_alert=True)
+        return
+
+    await callback.answer()
+
+    pedido_id = int(callback.data.replace("reenviar_", ""))
+
+    cursor.execute("""
+    SELECT
+        nome_livro,
+        autor,
+        serie,
+        numero_serie,
+        capa_id,
+        mensagem_acervo_id
+    FROM livros_pacotes
+    WHERE pedido_id = ?
+    LIMIT 1
+    """, (pedido_id,))
+
+    livro = cursor.fetchone()
+
+    if not livro:
+        await callback.message.answer("⚠️ Livro não encontrado.")
+        return
+
+    nome_livro, autor, serie, numero_serie, capa_id, mensagem_acervo_id = livro
+
+    if not mensagem_acervo_id:
+        await callback.message.answer(
+            "⚠️ Este livro foi enviado antes dessa atualização e não pode ser editado automaticamente."
+        )
+        return
+
+    legenda = (
+        f"📖 <b>{nome_livro}</b>\n"
+        f"✍️ {autor}\n"
+    )
+
+    if serie:
+        legenda += f"\n📚 Série: {serie}"
+
+    if numero_serie:
+        legenda += f"\n🔢 Livro: {numero_serie}"
+
+    try:
+        await bot.edit_message_caption(
+            chat_id=GRUPO_ACERVO,
+            message_id=mensagem_acervo_id,
+            caption=legenda,
+            parse_mode="HTML"
+        )
+
+        await callback.message.answer(
+            "✅ Legenda atualizada no acervo!"
+        )
+
+    except Exception as e:
+        await callback.message.answer(
+            f"❌ Erro ao atualizar:\n{e}"
+        )
 
 @dp.callback_query(F.data.startswith("voltar_pendente_"))
 async def voltar_pendente(callback: CallbackQuery):
@@ -2737,11 +2823,17 @@ async def abrir_corrigir_ebook(callback: CallbackQuery):
     await callback.answer()
 
     cursor.execute("""
-    SELECT pedido_id
+    SELECT
+    nome_livro,
+    autor,
+    serie,
+    numero_serie,
+    capa_id,
+    mensagem_acervo_id
     FROM livros_pacotes
-    GROUP BY pedido_id
-    ORDER BY pedido_id DESC
-    """)
+    WHERE pedido_id = ?
+    LIMIT 1
+    """, (pedido_id,))
 
     livros = cursor.fetchall()
 
