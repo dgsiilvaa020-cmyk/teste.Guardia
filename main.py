@@ -751,7 +751,7 @@ def extrair_metadados_epub(caminho):
         print("Erro lendo metadados EPUB:", e)
         return "Livro não informado", "Autor não informado"
 
-def extrair_dados_livro_epub(caminho):
+def extrair_dados_livro_epub(caminho, ficha_pedido=""):
 
     print("ENTROU NA FUNÇÃO")
 
@@ -856,11 +856,23 @@ def extrair_dados_livro_epub(caminho):
             titulo = titulo_limpo.strip()
 
 
+        if not titulo or titulo.strip() in [
+            "Livro não identificado",
+            "Livro não informado"
+        ]:
+            titulo = extrair_nome_livro(ficha_pedido)
+
+
+        if not autor or autor.strip() in [
+            "Autor não identificado",
+            "Autor não informado"
+        ]:
+            autor = extrair_autor(ficha_pedido)
+
+
         return {
-            "nome_livro": titulo or "Livro não identificado",
-            "autor": autor or "Autor não identificado",
-            "serie": serie,
-            "numero_serie": numero_serie
+            "nome_livro": titulo,
+            "autor": autor,
         }
 
 
@@ -1766,6 +1778,23 @@ async def receber_arquivo(message: Message):
 
     admin = message.from_user.id
 
+    pedido_id = pedido_selecionado.get(admin)
+
+    ficha_pedido = ""
+
+    if pedido_id:
+
+        cursor.execute("""
+        SELECT pedido
+        FROM pedidos
+        WHERE id = ?
+        """, (pedido_id,))
+
+        resultado = cursor.fetchone()
+
+        if resultado:
+            ficha_pedido = resultado[0]
+
     if admin not in pacotes_pendentes:
         await message.answer("Primeiro envie uma capa.")
         return
@@ -1805,7 +1834,10 @@ async def receber_arquivo(message: Message):
 
         texto = ler_inicio_epub(caminho)
 
-        dados = extrair_dados_livro_epub(caminho)
+        dados = extrair_dados_livro_epub(
+            caminho,
+            ficha_pedido
+        )
 
         print(dados)
 
