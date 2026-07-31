@@ -2021,10 +2021,25 @@ async def receber_arquivo(message: Message):
 
         print(dados)
 
-        pacote["nome_livro"] = dados["nome_livro"]
-        pacote["autor"] = dados["autor"]
-        pacote["serie"] = dados["serie"]
-        pacote["numero_serie"] = dados["numero_serie"]
+        pacote["nome_livro"] = dados.get(
+            "nome_livro",
+            "Livro não informado"
+        )
+
+        pacote["autor"] = dados.get(
+            "autor",
+            "Autor não informado"
+        )
+
+        pacote["serie"] = dados.get(
+            "serie",
+            ""
+        )
+
+        pacote["numero_serie"] = dados.get(
+            "numero_serie",
+            ""
+        )
 
         chave_livro = remover_acentos(
             pacote.get("nome_livro", "").lower()
@@ -2342,7 +2357,7 @@ async def receber_figurinha(message: Message):
 
         caption = legenda
             
-        if pacote["traducao"]:
+        if pacote.get("traducao"):
             caption += f"\n\n🌐 Tradução: {pacote['traducao']}"
 
         if pacote.get("hashtags"):
@@ -2362,7 +2377,7 @@ async def receber_figurinha(message: Message):
 
         msg_acervo = await bot.send_photo(
             chat_id=GRUPO_ACERVO,
-            photo=pacote["capa"],
+            photo=pacote.get("capa"),
             caption=caption,
             parse_mode="HTML"
         )
@@ -2384,7 +2399,7 @@ async def receber_figurinha(message: Message):
             msg_acervo.message_id
         )
 
-        for arquivo_id in pacote["arquivos"]:
+        for arquivo_id in pacote.get("arquivos", []):
 
             await bot.send_document(
                 chat_id=GRUPO_ACERVO,
@@ -2396,8 +2411,8 @@ async def receber_figurinha(message: Message):
             (chave_livro, nome_livro, pedido_id, arquivo_id)
             VALUES (?, ?, ?, ?)
             """, (
-                chave_livro,
-                extrair_nome_livro(pedido_texto),
+                pacote.get("chave_livro"),
+                pacote.get("nome_livro"),
                 pedido_id,
                 arquivo_id
             ))
