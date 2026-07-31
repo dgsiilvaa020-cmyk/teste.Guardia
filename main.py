@@ -2695,7 +2695,76 @@ async def teste(message: Message):
     )
 
     await message.answer("✅ Teste concluído.")
-    
+
+@dp.callback_query(F.data.startswith("corrigir_pedido_"))
+async def corrigir_pedido(callback: CallbackQuery):
+
+    if not autorizado(callback.from_user.id):
+        await callback.answer(
+            "Sem permissão.",
+            show_alert=True
+        )
+        return
+
+    await callback.answer()
+
+    pedido_id = int(
+        callback.data.replace(
+            "corrigir_pedido_",
+            ""
+        )
+    )
+
+    cursor.execute("""
+    SELECT 
+        nome_livro,
+        autor,
+        serie,
+        numero_serie,
+        capa_id,
+        arquivo_id
+    FROM livros_pacotes
+    WHERE pedido_id = ?
+    ORDER BY numero_pacote
+    """, (pedido_id,))
+
+
+    livros = cursor.fetchall()
+
+
+    if not livros:
+        await callback.message.answer(
+            "⚠️ Não encontrei os dados desse eBook."
+        )
+        return
+
+
+    texto = "🛠️ <b>Dados do eBook:</b>\n\n"
+
+
+    for i, livro in enumerate(livros, start=1):
+
+        nome, autor, serie, numero, capa, arquivos = livro
+
+        texto += (
+            f"📚 Pacote {i}\n"
+            f"📖 Livro: {nome}\n"
+            f"✍️ Autor: {autor}\n"
+        )
+
+        if serie:
+            texto += f"📚 Série: {serie}\n"
+
+        if numero:
+            texto += f"🔢 Livro: {numero}\n"
+
+        texto += "\n"
+
+
+    await callback.message.edit_text(
+        texto,
+        parse_mode="HTML"
+    )
 
 async def set_commands():
     commands = [
