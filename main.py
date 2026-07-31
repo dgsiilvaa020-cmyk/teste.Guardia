@@ -832,9 +832,6 @@ def extrair_dados_livro_epub(caminho, ficha_pedido=""):
         titulos = livro.get_metadata("DC", "title")
         autores = livro.get_metadata("DC", "creator")
 
-        serie = None
-        numero_serie = None
-
         # Metadados do Calibre
         series = livro.get_metadata("OPF", "calibre:series")
         series_index = livro.get_metadata("OPF", "calibre:series_index")
@@ -888,8 +885,9 @@ def extrair_dados_livro_epub(caminho, ficha_pedido=""):
         return {
             "nome_livro": titulo,
             "autor": autor,
+            "serie": serie,
+            "numero_serie": numero_serie
         }
-
 
     except Exception as e:
         print("Erro EPUB:", e)
