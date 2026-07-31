@@ -2195,6 +2195,11 @@ async def receber_figurinha(message: Message):
         ))
 
         conn.commit()
+
+        print("========== PACOTE ==========")
+        print("Nome:", pacote.get("nome_livro"))
+        print("Autor:", pacote.get("autor"))
+        print("============================")
     
         legenda = formatar_mensagem_config(
             "msg_arquivo",
