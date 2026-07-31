@@ -2262,19 +2262,19 @@ async def receber_figurinha(message: Message):
         nome=nome,
         id_pedido=id_pedido,
         numero_missao=numero,
-        nome_livro=pacotes_pendentes[admin_id][0].get(
+        nome_livro=pacote.get(
             "nome_livro",
             "Livro não informado"
         ),
-        autor=pacotes_pendentes[admin_id][0].get(
+        autor=pacote.get(
             "autor",
             "Autor não informado"
         ),
-        serie=pacotes_pendentes[admin_id][0].get(
+        serie=pacote.get(
             "serie",
             ""
         ),
-        numero_serie=pacotes_pendentes[admin_id][0].get(
+        numero_serie=pacote.get(
             "numero_serie",
             ""
         )
@@ -2293,10 +2293,13 @@ async def receber_figurinha(message: Message):
             autor,
             serie,
             numero_serie,
+            sinopse,
+            hashtags,
+            traducao,
             capa_id,
             arquivo_id
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             pedido_id,
@@ -2305,34 +2308,36 @@ async def receber_figurinha(message: Message):
             pacote.get("autor"),
             pacote.get("serie"),
             pacote.get("numero_serie"),
+            pacote.get("sinopse"),
+            "\n".join(pacote.get("hashtags", [])),
+            pacote.get("traducao"),
             pacote.get("capa"),
             str(pacote.get("arquivos"))
         ))
-
+        
         conn.commit()
     
-
         legenda = formatar_mensagem_config(
             "msg_arquivo",
             nome=nome,
             id_pedido=id_pedido,
             numero_missao=numero,
-            nome_livro=pacotes_pendentes[admin_id][0].get(
+            nome_livro=pacote.get(
                 "nome_livro",
                 "Livro não informado"
             ),
-            autor=pacotes_pendentes[admin_id][0].get(
+            autor=pacote.get(
                 "autor",
                 "Autor não informado"
             ),
-            serie=pacotes_pendentes[admin_id][0].get(
+            serie=pacote.get(
                 "serie",
                 ""
             ),
-            numero_serie=pacotes_pendentes[admin_id][0].get(
+            numero_serie=pacote.get(
                 "numero_serie",
                 ""
-            )        
+            )
         )
 
         caption = legenda
