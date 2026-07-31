@@ -140,7 +140,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMINS = [8672397104, 1130170420, 8450100073]  # coloque seu ID aqui
 
 # Grupo onde os Aliados fazem os pedidos
-GRUPO_PEDIDOS = -1003640277537
+GRUPO_PEDIDOS = -1003951906074
 
 # Grupo onde os Guardiões publicam os livros
 GRUPO_ACERVO = -1004356335279
@@ -1886,6 +1886,12 @@ async def receber_capa(message: Message):
         "sinopse": "",
         "origem_sinopse": "",
         "confirmado": False,
+
+        "nome_livro": "",
+        "autor": "",
+        "serie": "",
+        "numero_serie": "",
+        "chave_livro": ""
     }
 
     pacotes_pendentes[admin].append(pacote)
@@ -2021,10 +2027,25 @@ async def receber_arquivo(message: Message):
 
         print(dados)
 
-        pacote["nome_livro"] = dados["nome_livro"]
-        pacote["autor"] = dados["autor"]
-        pacote["serie"] = dados["serie"]
-        pacote["numero_serie"] = dados["numero_serie"]
+        pacote["nome_livro"] = dados.get(
+            "nome_livro",
+            "Livro não informado"
+        )
+
+        pacote["autor"] = dados.get(
+            "autor",
+            "Autor não informado"
+        )
+
+        pacote["serie"] = dados.get(
+            "serie",
+            ""
+        )
+
+        pacote["numero_serie"] = dados.get(
+            "numero_serie",
+            ""
+        )
 
         chave_livro = remover_acentos(
             pacote.get("nome_livro", "").lower()
@@ -2256,29 +2277,6 @@ async def receber_figurinha(message: Message):
     link_acervo = None
     
     numero = numero_visual(id_pedido, status)
-
-    legenda = formatar_mensagem_config(
-        "msg_arquivo",
-        nome=nome,
-        id_pedido=id_pedido,
-        numero_missao=numero,
-        nome_livro=pacotes_pendentes[admin_id][0].get(
-            "nome_livro",
-            "Livro não informado"
-        ),
-        autor=pacotes_pendentes[admin_id][0].get(
-            "autor",
-            "Autor não informado"
-        ),
-        serie=pacotes_pendentes[admin_id][0].get(
-            "serie",
-            ""
-        ),
-        numero_serie=pacotes_pendentes[admin_id][0].get(
-            "numero_serie",
-            ""
-        )
-    )
     
     for indice, pacote in enumerate(pacotes_pendentes[admin_id]):
 
@@ -2293,10 +2291,13 @@ async def receber_figurinha(message: Message):
             autor,
             serie,
             numero_serie,
+            sinopse,
+            hashtags,
+            traducao,
             capa_id,
             arquivo_id
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             pedido_id,
@@ -2305,39 +2306,41 @@ async def receber_figurinha(message: Message):
             pacote.get("autor"),
             pacote.get("serie"),
             pacote.get("numero_serie"),
+            pacote.get("sinopse"),
+            "\n".join(pacote.get("hashtags", [])),
+            pacote.get("traducao"),
             pacote.get("capa"),
             str(pacote.get("arquivos"))
         ))
-
+        
         conn.commit()
     
-
         legenda = formatar_mensagem_config(
             "msg_arquivo",
             nome=nome,
             id_pedido=id_pedido,
             numero_missao=numero,
-            nome_livro=pacotes_pendentes[admin_id][0].get(
+            nome_livro=pacote.get(
                 "nome_livro",
                 "Livro não informado"
             ),
-            autor=pacotes_pendentes[admin_id][0].get(
+            autor=pacote.get(
                 "autor",
                 "Autor não informado"
             ),
-            serie=pacotes_pendentes[admin_id][0].get(
+            serie=pacote.get(
                 "serie",
                 ""
             ),
-            numero_serie=pacotes_pendentes[admin_id][0].get(
+            numero_serie=pacote.get(
                 "numero_serie",
                 ""
-            )        
+            )
         )
 
         caption = legenda
             
-        if pacote["traducao"]:
+        if pacote.get("traducao"):
             caption += f"\n\n🌐 Tradução: {pacote['traducao']}"
 
         if pacote.get("hashtags"):
@@ -2357,7 +2360,7 @@ async def receber_figurinha(message: Message):
 
         msg_acervo = await bot.send_photo(
             chat_id=GRUPO_ACERVO,
-            photo=pacote["capa"],
+            photo=pacote.get("capa"),
             caption=caption,
             parse_mode="HTML"
         )
@@ -2379,7 +2382,7 @@ async def receber_figurinha(message: Message):
             msg_acervo.message_id
         )
 
-        for arquivo_id in pacote["arquivos"]:
+        for arquivo_id in pacote.get("arquivos", []):
 
             await bot.send_document(
                 chat_id=GRUPO_ACERVO,
@@ -2391,8 +2394,8 @@ async def receber_figurinha(message: Message):
             (chave_livro, nome_livro, pedido_id, arquivo_id)
             VALUES (?, ?, ?, ?)
             """, (
-                chave_livro,
-                extrair_nome_livro(pedido_texto),
+                pacote.get("chave_livro", chave_livro),
+                pacote.get("nome_livro", "Livro sem nome"),
                 pedido_id,
                 arquivo_id
             ))
