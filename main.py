@@ -2817,49 +2817,36 @@ async def editar_sticker_nao_encontrei(callback: CallbackQuery):
 async def abrir_corrigir_ebook(callback: CallbackQuery):
 
     if not autorizado(callback.from_user.id):
-        await callback.answer("Sem permissão.", show_alert=True)
+        await callback.answer(
+            "Sem permissão.",
+            show_alert=True
+        )
         return
 
     await callback.answer()
 
     cursor.execute("""
-    SELECT
-    nome_livro,
-    autor,
-    serie,
-    numero_serie,
-    capa_id,
-    mensagem_acervo_id
+    SELECT DISTINCT
+        pedido_id,
+        nome_livro
     FROM livros_pacotes
-    WHERE pedido_id = ?
-    LIMIT 1
-    """, (pedido_id,))
+    ORDER BY pedido_id DESC
+    """)
 
     livros = cursor.fetchall()
 
-
     if not livros:
-
-        await callback.message.answer(
+        await callback.message.edit_text(
             "📚 Nenhum eBook salvo para corrigir.",
             reply_markup=menu_pv()
         )
-
         return
-
 
     await callback.message.edit_text(
         "🛠️ Corrigir E-books\n\n"
         "Escolha um pedido:",
         reply_markup=menu_corrigir_ebooks(livros)
-    )
-
-
-    await callback.message.answer(
-        "✏️ Escolha o eBook que deseja corrigir:",
-        reply_markup=menu_corrigir_ebooks(livros)
-    )
-    
+    )  
 
 @dp.callback_query(F.data == "voltar_menu")
 async def voltar_menu(callback: CallbackQuery):
