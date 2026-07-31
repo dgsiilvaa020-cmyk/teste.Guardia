@@ -1340,20 +1340,7 @@ async def finalizar_hashtags(callback: CallbackQuery):
         "✅ Hashtags salvas!\n\nAgora confirme o livro.",
         reply_markup=menu_confirmar_livro()
     )
-
-@dp.callback_query(F.data == "escolher_hashtags")
-async def abrir_menu_hashtags(callback: CallbackQuery):
-
-    hashtags_selecionadas[callback.from_user.id] = []
-
-    await callback.answer()
-
-    await callback.message.edit_text(
-        "🏷️ Escolha uma categoria:",
-        reply_markup=menu_categorias_hashtags()
-    )
     
-
 @dp.callback_query(F.data.startswith("categoria_"))
 async def abrir_categoria(callback: CallbackQuery):
 
@@ -2204,6 +2191,11 @@ async def receber_figurinha(message: Message):
         ))
 
         conn.commit()
+
+        print("========== PACOTE ==========")
+        print("Nome:", pacote.get("nome_livro"))
+        print("Autor:", pacote.get("autor"))
+        print("============================")
     
         legenda = formatar_mensagem_config(
             "msg_arquivo",
