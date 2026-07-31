@@ -1857,6 +1857,8 @@ async def escolher_traducao(callback: CallbackQuery):
 @dp.message(F.chat.type == "private", F.document)
 async def receber_arquivo(message: Message):
 
+    print("########## RECEBER_ARQUIVO FOI CHAMADO ##########")
+
     if not autorizado(message.from_user.id):
         return
 
