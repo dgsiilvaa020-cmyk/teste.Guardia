@@ -24,7 +24,6 @@ from bs4 import BeautifulSoup
 
 
 def ler_capitulos_epub(caminho, limite=5):
-
     livro = epub.read_epub(caminho)
 
     capitulos = []
@@ -42,7 +41,6 @@ def ler_capitulos_epub(caminho, limite=5):
         if item.get_type() != 9:
             continue
 
-
         soup = BeautifulSoup(
             item.get_content(),
             "html.parser"
@@ -51,7 +49,7 @@ def ler_capitulos_epub(caminho, limite=5):
         texto = ""
 
         for tag in soup.find_all(
-            ["h1", "h2", "h3", "p"]
+                ["h1", "h2", "h3", "p"]
         ):
 
             conteudo = tag.get_text(
@@ -62,25 +60,20 @@ def ler_capitulos_epub(caminho, limite=5):
             if conteudo:
                 texto += conteudo + "\n\n"
 
-
         if texto.strip():
-
             numero += 1
 
             capitulos.append(
                 f"📖 CAPÍTULO {numero}\n\n{texto.strip()}"
             )
 
-
         if numero >= limite:
             break
 
-
     return "\n\n━━━━━━━━━━━━━━\n\n".join(capitulos)
-    
+
 
 def extrair_lista_capitulos_epub(caminho, limite=15):
-
     livro = epub.read_epub(caminho)
 
     capitulos = []
@@ -105,7 +98,7 @@ def extrair_lista_capitulos_epub(caminho, limite=15):
         texto = ""
 
         for tag in soup.find_all(
-            ["h1", "h2", "h3", "p"]
+                ["h1", "h2", "h3", "p"]
         ):
 
             conteudo = tag.get_text(
@@ -116,9 +109,7 @@ def extrair_lista_capitulos_epub(caminho, limite=15):
             if conteudo:
                 texto += conteudo + "\n\n"
 
-
         if texto.strip():
-
             numero += 1
 
             capitulos.append(
@@ -128,22 +119,20 @@ def extrair_lista_capitulos_epub(caminho, limite=15):
                 }
             )
 
-
         if numero >= limite:
             break
 
-
     return capitulos
-    
-    
+
+
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMINS = [8672397104, 1130170420, 8450100073]  # coloque seu ID aqui
 
 # Grupo onde os Aliados fazem os pedidos
-GRUPO_PEDIDOS = -1004385510894
+GRUPO_PEDIDOS = -1003951906074
 
 # Grupo onde os Guardiões publicam os livros
-GRUPO_ACERVO = -1004348688790
+GRUPO_ACERVO = -1004356335279
 
 bot = Bot(BOT_TOKEN)
 dp = Dispatcher()
@@ -232,7 +221,6 @@ hashtags_disponiveis = {
         "#criaturasmagicas"
     ],
 
-
     "🩸 Dark Romance": [
         "#darkromance",
         "#romancedark",
@@ -247,7 +235,6 @@ hashtags_disponiveis = {
         "#vinganca"
     ],
 
-
     "🔫 Máfia": [
         "#mafia",
         "#mafioso",
@@ -260,7 +247,6 @@ hashtags_disponiveis = {
         "#chefedamafia",
         "#casamentopactuado"
     ],
-
 
     "❤️ Romance": [
         "#romance",
@@ -275,7 +261,6 @@ hashtags_disponiveis = {
         "#namorofalso"
     ],
 
-
     "👑 Realeza": [
         "#realeza",
         "#principe",
@@ -288,7 +273,6 @@ hashtags_disponiveis = {
         "#nobreza",
         "#palacio"
     ],
-
 
     "🐺 Sobrenatural": [
         "#sobrenatural",
@@ -303,7 +287,6 @@ hashtags_disponiveis = {
         "#criaturas"
     ],
 
-
     "🎓 Academia": [
         "#academia",
         "#universidade",
@@ -316,7 +299,6 @@ hashtags_disponiveis = {
         "#vidaacademica"
     ],
 
-
     "❤️‍🔥 Harém": [
         "#haremreverso",
         "#reverseharem",
@@ -326,7 +308,6 @@ hashtags_disponiveis = {
         "#polyromance",
         "#amorcompartilhado"
     ],
-
 
     "🚀 Ficção Científica": [
         "#ficcaocientifica",
@@ -340,7 +321,6 @@ hashtags_disponiveis = {
         "#viagemespacial"
     ],
 
-
     "🧛 Vampiros": [
         "#vampiros",
         "#vampire",
@@ -350,7 +330,6 @@ hashtags_disponiveis = {
         "#criaturasdanorte",
         "#romancevampiro"
     ],
-
 
     "🔥 Ação e Aventura": [
         "#acao",
@@ -363,7 +342,6 @@ hashtags_disponiveis = {
         "#guerreiro"
     ],
 
-
     "🔮 Mistério e Suspense": [
         "#misterio",
         "#suspense",
@@ -375,7 +353,6 @@ hashtags_disponiveis = {
         "#thriller"
     ],
 
-
     "👻 Terror": [
         "#terror",
         "#horror",
@@ -385,7 +362,6 @@ hashtags_disponiveis = {
         "#paranormal",
         "#sobrenatural"
     ],
-
 
     "💔 Drama": [
         "#drama",
@@ -397,7 +373,6 @@ hashtags_disponiveis = {
         "#dor"
     ],
 
-
     "🏹 Jovem Adulto": [
         "#youngadult",
         "#ya",
@@ -406,7 +381,6 @@ hashtags_disponiveis = {
         "#amizade",
         "#descoberta"
     ],
-
 
     "🌸 New Adult": [
         "#newadult",
@@ -431,7 +405,6 @@ hashtags_disponiveis = {
         "#billionaire"
     ],
 
-
     "🎓 Estudantes": [
         "#estudante",
         "#universidade",
@@ -446,7 +419,6 @@ hashtags_disponiveis = {
         "#colegasdeclasse"
     ],
 
-
     "💍 Casamentos": [
         "#casamento",
         "#casamentoforcado",
@@ -459,7 +431,6 @@ hashtags_disponiveis = {
         "#casamentoreal",
         "#fakemarriage"
     ],
-
 
     "👶 Família": [
         "#familia",
@@ -474,7 +445,6 @@ hashtags_disponiveis = {
         "#bebe"
     ],
 
-
     "🤰 Gravidez": [
         "#gravidez",
         "#gravidezinesperada",
@@ -485,7 +455,6 @@ hashtags_disponiveis = {
         "#paiolongo",
         "#familia"
     ],
-
 
     "🔥 Tropes TikTok": [
         "#booktok",
@@ -503,7 +472,6 @@ hashtags_disponiveis = {
         "#protectivehero"
     ],
 
-
     "⚔️ Rivais e Inimigos": [
         "#rivais",
         "#inimigos",
@@ -515,7 +483,6 @@ hashtags_disponiveis = {
         "#hateTolove"
     ],
 
-
     "🏠 Convivência": [
         "#vizinhosecreto",
         "#vizinhos",
@@ -525,7 +492,6 @@ hashtags_disponiveis = {
         "#forcedproximity",
         "#convivencia"
     ],
-
 
     "👔 Chefe e Funcionária": [
         "#bossromance",
@@ -537,7 +503,6 @@ hashtags_disponiveis = {
         "#empregadoepatrao"
     ],
 
-
     "💔 Segunda Chance": [
         "#secondchance",
         "#exnamorados",
@@ -546,7 +511,6 @@ hashtags_disponiveis = {
         "#voltaparacasa",
         "#amorinacabado"
     ],
-
 
     "🌶️ Hot / Spice": [
         "#spicy",
@@ -558,7 +522,6 @@ hashtags_disponiveis = {
         "#atracao"
     ],
 
-
     "🐺 Lobos e Alfas": [
         "#lobisomem",
         "#alpha",
@@ -569,7 +532,6 @@ hashtags_disponiveis = {
         "#shifter"
     ],
 
-
     "👑 Princesas e Príncipes": [
         "#princesa",
         "#principe",
@@ -579,7 +541,6 @@ hashtags_disponiveis = {
         "#coroa",
         "#palacio"
     ],
-
 
     "🕵️ Investigação": [
         "#detetive",
@@ -593,6 +554,7 @@ hashtags_disponiveis = {
 }
 
 hashtags_selecionadas = {}
+
 
 def autorizado(user_id: int):
     return user_id in ADMINS
@@ -653,12 +615,10 @@ def remover_acentos(texto):
 
 
 def criar_link_mensagem(chat_id, message_id):
-
     try:
         chat_id = str(chat_id)
 
         if chat_id.startswith("-100"):
-
             grupo = chat_id.replace("-100", "")
 
             return f"https://t.me/c/{grupo}/{message_id}"
@@ -696,7 +656,7 @@ def extrair_nome_livro(texto):
                 return valor
 
     return "Livro não informado"
-    
+
 
 def extrair_autor(texto):
     linhas = texto.splitlines()
@@ -728,6 +688,7 @@ def extrair_autor(texto):
 
     return "Autor não informado"
 
+
 def extrair_metadados_epub(caminho):
     try:
         livro = epub.read_epub(caminho)
@@ -751,8 +712,8 @@ def extrair_metadados_epub(caminho):
         print("Erro lendo metadados EPUB:", e)
         return "Livro não informado", "Autor não informado"
 
-def extrair_dados_livro_epub(caminho):
 
+def extrair_dados_livro_epub(caminho, ficha_pedido=""):
     print("ENTROU NA FUNÇÃO")
 
     try:
@@ -804,7 +765,6 @@ def extrair_dados_livro_epub(caminho):
                         numero_serie = resultado.group(2)
 
                 break
-        
 
         print("========== INÍCIO ==========")
         print(texto_inicio[:1000])
@@ -836,7 +796,6 @@ def extrair_dados_livro_epub(caminho):
         if autores:
             autor = autores[0][0]
 
-
         # se vier nome da logo ou tradução, limpa
         if titulo:
             palavras_bloqueadas = [
@@ -855,13 +814,21 @@ def extrair_dados_livro_epub(caminho):
 
             titulo = titulo_limpo.strip()
 
+        if not titulo or titulo.strip() in [
+            "Livro não identificado",
+            "Livro não informado"
+        ]:
+            titulo = extrair_nome_livro(ficha_pedido)
+
+        if not autor or autor.strip() in [
+            "Autor não identificado",
+            "Autor não informado"
+        ]:
+            autor = extrair_autor(ficha_pedido)
 
         return {
-            "nome_livro": titulo or "Livro não identificado",
-            "autor": autor or "Autor não identificado",
-            "serie": serie,
-            "numero_serie": numero_serie
-        }
+            "nome_livro": titulo,
+            "autor": autor,
 
 
     except Exception as e:
@@ -873,6 +840,7 @@ def extrair_dados_livro_epub(caminho):
             "serie": None,
             "numero_serie": None
         }
+
 
 def criar_chave_livro(texto):
     nome = extrair_nome_livro(texto)
@@ -893,12 +861,12 @@ def formatar_mensagem_config(chave, **dados):
 def parece_ficha(texto: str):
     texto = texto.lower()
     return (
-        "#pedido" in texto
-        or "livro:" in texto
-        or "nome:" in texto
-        or "autora:" in texto
-        or "autor:" in texto
-        or "formato:" in texto
+            "#pedido" in texto
+            or "livro:" in texto
+            or "nome:" in texto
+            or "autora:" in texto
+            or "autor:" in texto
+            or "formato:" in texto
     )
 
 
@@ -978,19 +946,18 @@ def menu_arquivo_inteligente():
 
 
 def menu_configuracoes():
-
     sinopse = pegar_config("usar_sinopse")
     hashtags = pegar_config("usar_hashtags")
 
     kb = InlineKeyboardBuilder()
 
     kb.button(
-        text=f"{'✅' if sinopse=='1' else '❌'} Sinopse",
+        text=f"{'✅' if sinopse == '1' else '❌'} Sinopse",
         callback_data="toggle_sinopse"
     )
 
     kb.button(
-        text=f"{'✅' if hashtags=='1' else '❌'} Hashtags",
+        text=f"{'✅' if hashtags == '1' else '❌'} Hashtags",
         callback_data="toggle_hashtags"
     )
 
@@ -1005,12 +972,9 @@ def menu_configuracoes():
 
 
 def menu_capitulos(capitulos):
-
     kb = InlineKeyboardBuilder()
 
-
     for capitulo in capitulos:
-
         resumo = capitulo["texto"][:40]
 
         kb.button(
@@ -1018,20 +982,17 @@ def menu_capitulos(capitulos):
             callback_data=f"abrir_capitulo_{capitulo['numero']}"
         )
 
-
     kb.button(
         text="⬅️ Voltar",
         callback_data="fechar_capitulos"
     )
 
-
     kb.adjust(4)
 
     return kb.as_markup()
-    
+
 
 def menu_confirmar_livro():
-
     kb = InlineKeyboardBuilder()
 
     kb.button(
@@ -1057,20 +1018,20 @@ def menu_confirmar_livro():
     kb.adjust(1)
 
     return kb.as_markup()
-    
-def menu_pagina_capitulo(numero, total):
 
+
+def menu_pagina_capitulo(numero, total):
     kb = InlineKeyboardBuilder()
 
     if numero > 1:
         kb.button(
             text="⬅️ Voltar",
-            callback_data=f"pagina_cap_{numero-1}"
+            callback_data=f"pagina_cap_{numero - 1}"
         )
 
     kb.button(
         text="➡️ Próxima",
-        callback_data=f"pagina_cap_{numero+1}"
+        callback_data=f"pagina_cap_{numero + 1}"
     )
 
     kb.button(
@@ -1081,10 +1042,9 @@ def menu_pagina_capitulo(numero, total):
     kb.adjust(2)
 
     return kb.as_markup()
-    
+
 
 def menu_categorias_hashtags():
-
     kb = InlineKeyboardBuilder()
 
     for categoria in hashtags_disponiveis.keys():
@@ -1102,12 +1062,11 @@ def menu_categorias_hashtags():
 
     return kb.as_markup()
 
-def menu_hashtags_categoria(categoria):
 
+def menu_hashtags_categoria(categoria):
     kb = InlineKeyboardBuilder()
 
     for indice, hashtag in enumerate(hashtags_disponiveis[categoria]):
-
         kb.button(
             text=hashtag,
             callback_data=f"tag_{categoria}_{indice}"
@@ -1126,7 +1085,7 @@ def menu_hashtags_categoria(categoria):
     kb.adjust(4)
 
     return kb.as_markup()
-    
+
 
 def menu_pedidos(pedidos):
     kb = InlineKeyboardBuilder()
@@ -1170,7 +1129,6 @@ async def start(message: Message):
 
 @dp.callback_query(F.data.startswith("tag_"))
 async def escolher_hashtag(callback: CallbackQuery):
-
     admin = callback.from_user.id
 
     dados = callback.data.split("_")
@@ -1180,9 +1138,7 @@ async def escolher_hashtag(callback: CallbackQuery):
 
     hashtag = hashtags_disponiveis[categoria][indice]
 
-
     hashtags_selecionadas.setdefault(admin, [])
-
 
     if hashtag in hashtags_selecionadas[admin]:
 
@@ -1195,24 +1151,21 @@ async def escolher_hashtag(callback: CallbackQuery):
     else:
 
         if len(hashtags_selecionadas[admin]) >= 8:
-
             await callback.answer(
                 "Máximo de 5 hashtags.",
                 show_alert=True
             )
             return
 
-
         hashtags_selecionadas[admin].append(hashtag)
 
         await callback.answer(
             f"{hashtag} adicionada ✅"
         )
-        
+
 
 @dp.callback_query(F.data == "hashtags_finalizar")
 async def finalizar_hashtags(callback: CallbackQuery):
-
     admin = callback.from_user.id
 
     if admin not in pacotes_pendentes:
@@ -1232,9 +1185,9 @@ async def finalizar_hashtags(callback: CallbackQuery):
         reply_markup=menu_confirmar_livro()
     )
 
+
 @dp.callback_query(F.data == "escolher_hashtags")
 async def abrir_menu_hashtags(callback: CallbackQuery):
-
     hashtags_selecionadas[callback.from_user.id] = []
 
     await callback.answer()
@@ -1243,11 +1196,10 @@ async def abrir_menu_hashtags(callback: CallbackQuery):
         "🏷️ Escolha uma categoria:",
         reply_markup=menu_categorias_hashtags()
     )
-    
+
 
 @dp.callback_query(F.data.startswith("categoria_"))
 async def abrir_categoria(callback: CallbackQuery):
-
     categoria = callback.data.replace("categoria_", "")
 
     await callback.answer()
@@ -1257,20 +1209,19 @@ async def abrir_categoria(callback: CallbackQuery):
         reply_markup=menu_hashtags_categoria(categoria)
     )
 
+
 @dp.callback_query(F.data == "voltar_categorias")
 async def voltar_categorias(callback: CallbackQuery):
-
     await callback.answer()
 
     await callback.message.edit_text(
         "🏷️ Escolha uma categoria:",
         reply_markup=menu_categorias_hashtags()
     )
-    
+
 
 @dp.callback_query(F.data == "ver_inicio_livro")
 async def ver_inicio_livro(callback: CallbackQuery):
-
     admin = callback.from_user.id
 
     if admin not in livros_analise:
@@ -1280,30 +1231,25 @@ async def ver_inicio_livro(callback: CallbackQuery):
         )
         return
 
-
     caminho = livros_analise[admin]
-
 
     capitulos = extrair_lista_capitulos_epub(
         caminho,
         limite=15
     )
 
-
     livros_capitulos[admin] = capitulos
 
-
     await callback.answer()
-
 
     await callback.message.edit_text(
         "📖 Escolha o capítulo que deseja visualizar:",
         reply_markup=menu_capitulos(capitulos)
     )
 
+
 @dp.callback_query(F.data == "ver_capitulos")
 async def ver_capitulos(callback: CallbackQuery):
-
     admin = callback.from_user.id
 
     paginas_capitulos.pop(admin, None)
@@ -1317,14 +1263,13 @@ async def ver_capitulos(callback: CallbackQuery):
         )
         return
 
-
     await callback.answer()
-
 
     await callback.message.edit_text(
         "📖 Escolha o capítulo:",
         reply_markup=menu_capitulos(capitulos)
     )
+
 
 @dp.message(Command("menu"))
 async def menu(message: Message):
@@ -1339,9 +1284,9 @@ async def menu(message: Message):
         reply_markup=menu_pv()
     )
 
+
 @dp.callback_query(F.data == "configuracoes")
 async def configuracoes(callback: CallbackQuery):
-
     if not autorizado(callback.from_user.id):
         return
 
@@ -1355,7 +1300,6 @@ async def configuracoes(callback: CallbackQuery):
 
 @dp.callback_query(F.data == "toggle_sinopse")
 async def toggle_sinopse(callback: CallbackQuery):
-
     valor = pegar_config("usar_sinopse")
 
     if valor == "1":
@@ -1368,11 +1312,10 @@ async def toggle_sinopse(callback: CallbackQuery):
     await callback.message.edit_reply_markup(
         reply_markup=menu_configuracoes()
     )
-    
+
 
 @dp.callback_query(F.data == "voltar_lista_capitulos")
 async def voltar_lista_capitulos(callback: CallbackQuery):
-
     admin = callback.from_user.id
 
     capitulos = livros_capitulos.get(admin)
@@ -1381,18 +1324,16 @@ async def voltar_lista_capitulos(callback: CallbackQuery):
         await callback.answer()
         return
 
-
     await callback.answer()
-
 
     await callback.message.edit_text(
         "📖 Escolha um capítulo:",
         reply_markup=menu_capitulos(capitulos)
     )
 
+
 @dp.callback_query(F.data == "toggle_hashtags")
 async def toggle_hashtags(callback: CallbackQuery):
-
     valor = pegar_config("usar_hashtags")
 
     if valor == "1":
@@ -1422,7 +1363,6 @@ async def receber_texto_personalizado(message: Message):
         return
 
     if chave == "sinopse_manual":
-
         pacote = pacotes_pendentes[message.from_user.id][-1]
 
         pacote["sinopse"] = message.text
@@ -1440,7 +1380,6 @@ async def receber_texto_personalizado(message: Message):
 
         return
 
-
     salvar_config(chave, message.text)
 
     modo_edicao.pop(
@@ -1456,18 +1395,13 @@ async def receber_texto_personalizado(message: Message):
         f"{nova}",
         reply_markup=menu_pv()
     )
-    
 
-@dp.message(F.chat.id == GRUPO_PEDIDOS)
+
+@dp.message(F.chat.id == GRUPO_PEDIDOS, F.text)
 async def registrar_pedido(message: Message):
-    print("========== REGISTRAR PEDIDO ==========")
-    print("Chat:", message.chat.id)
-    print("Tipo:", message.content_type)
-    print("Texto:", message.text)
+    texto = message.text
 
-    texto = message.text or message.caption or ""
-
-    if not texto:
+    if not parece_ficha(texto):
         return
 
     user = message.from_user
@@ -1549,6 +1483,7 @@ async def missoes(callback: CallbackQuery):
         reply_markup=menu_pedidos(pedidos)
     )
 
+
 @dp.callback_query(F.data == "editar_msg_concluida")
 async def editar_msg_concluida(callback: CallbackQuery):
     if not autorizado(callback.from_user.id):
@@ -1603,7 +1538,6 @@ async def missoes_nao_encontradas(callback: CallbackQuery):
 
 @dp.callback_query(F.data == "editar_sinopse")
 async def editar_sinopse(callback: CallbackQuery):
-
     admin = callback.from_user.id
 
     if admin not in pacotes_pendentes:
@@ -1613,7 +1547,6 @@ async def editar_sinopse(callback: CallbackQuery):
         )
         return
 
-
     modo_edicao[admin] = "sinopse_manual"
 
     await callback.answer()
@@ -1622,18 +1555,17 @@ async def editar_sinopse(callback: CallbackQuery):
         "✏️ Envie agora a sinopse personalizada.\n\n"
         "Ela será colocada junto com a capa do livro."
     )
-    
-    
+
+
 @dp.callback_query(F.data == "escolher_hashtags")
 async def escolher_hashtags(callback: CallbackQuery):
-
     await callback.answer()
 
     await callback.message.edit_text(
         "🏷️ Escolha uma categoria:",
         reply_markup=menu_categorias_hashtags()
     )
-    
+
 
 @dp.callback_query(F.data.startswith("selecionar_"))
 async def selecionar_pedido(callback: CallbackQuery):
@@ -1661,7 +1593,7 @@ async def selecionar_pedido(callback: CallbackQuery):
 
     pedido_selecionado[callback.from_user.id] = pedido_id
     pacotes_pendentes[callback.from_user.id] = []
-    
+
     await callback.message.answer(
         f"🎯 Missão {numero} selecionada.\n\n"
         f"👤 Guardião solicitante: {nome}\n\n"
@@ -1675,7 +1607,6 @@ async def selecionar_pedido(callback: CallbackQuery):
 
 @dp.message(F.chat.type == "private", F.photo)
 async def receber_capa(message: Message):
-
     if not autorizado(message.from_user.id):
         return
 
@@ -1714,16 +1645,16 @@ async def receber_capa(message: Message):
     kb.button(text="📚 Tradução Oficial", callback_data="trad_oficial")
     kb.button(text="🇺🇸 Inglês", callback_data="trad_ingles")
     kb.button(text="⏭️ Pular tradução", callback_data="trad_pular")
-    
+
     await message.answer(
         f"✅ Capa #{numero} recebida.\n\n"
         "Escolha o tipo da tradução.",
         reply_markup=kb.as_markup()
     )
 
+
 @dp.callback_query(F.data.startswith("trad_"))
 async def escolher_traducao(callback: CallbackQuery):
-
     if not autorizado(callback.from_user.id):
         return
 
@@ -1735,7 +1666,6 @@ async def escolher_traducao(callback: CallbackQuery):
 
     pacote = pacotes_pendentes[admin][-1]
 
-
     traducoes = {
         "trad_mecanica": "🤖 Tradução Mecânica",
         "trad_oficial": "📚 Tradução Oficial",
@@ -1743,15 +1673,11 @@ async def escolher_traducao(callback: CallbackQuery):
         "trad_pular": "⏭️ Sem tradução"
     }
 
-
     pacote["traducao"] = traducoes.get(callback.data)
-
 
     print("TRADUÇÃO SALVA:", pacote)
 
-
     await callback.answer("Tradução escolhida ✅")
-
 
     await callback.message.edit_text(
         "✅ Tradução salva!\n\n"
@@ -1765,11 +1691,27 @@ async def escolher_traducao(callback: CallbackQuery):
 
 @dp.message(F.chat.type == "private", F.document)
 async def receber_arquivo(message: Message):
-
     if not autorizado(message.from_user.id):
         return
 
     admin = message.from_user.id
+
+    pedido_id = pedido_selecionado.get(admin)
+
+    ficha_pedido = ""
+
+    if pedido_id:
+
+        cursor.execute("""
+        SELECT pedido
+        FROM pedidos
+        WHERE id = ?
+        """, (pedido_id,))
+
+        resultado = cursor.fetchone()
+
+        if resultado:
+            ficha_pedido = resultado[0]
 
     if admin not in pacotes_pendentes:
         await message.answer("Primeiro envie uma capa.")
@@ -1780,22 +1722,17 @@ async def receber_arquivo(message: Message):
         return
 
     pacote = pacotes_pendentes[admin][-1]
-    
-    pacote["arquivos"].append(message.document.file_id)
 
+    pacote["arquivos"].append(message.document.file_id)
 
     nome_arquivo = message.document.file_name.lower()
 
-
     if nome_arquivo.endswith(".epub"):
-
         arquivo = await bot.get_file(
             message.document.file_id
         )
 
-
         caminho = f"temp_{admin}.epub"
-
 
         await bot.download_file(
             arquivo.file_path,
@@ -1807,10 +1744,12 @@ async def receber_arquivo(message: Message):
             limite=15
         )
 
-
         texto = ler_inicio_epub(caminho)
 
-        dados = extrair_dados_livro_epub(caminho)
+        dados = extrair_dados_livro_epub(
+            caminho,
+            ficha_pedido
+        )
 
         print(dados)
 
@@ -1849,7 +1788,6 @@ async def receber_arquivo(message: Message):
 
     total = len(pacote["arquivos"])
 
-
     origens = {
         "metadados": "📚 Metadados do EPUB",
         "inicio": "📖 Sinopse encontrada no livro",
@@ -1864,9 +1802,9 @@ async def receber_arquivo(message: Message):
     texto = (
         "📚 <b>Livro analisado!</b>\n\n"
 
-        f"📖 <b>{pacote.get('nome_livro','-')}</b>\n"
+        f"📖 <b>{pacote.get('nome_livro', '-')}</b>\n"
 
-        f"✍️ {pacote.get('autor','-')}\n"
+        f"✍️ {pacote.get('autor', '-')}\n"
 
         f"{'📚 ' + pacote.get('serie') if pacote.get('serie') else ''}\n\n"
 
@@ -1887,9 +1825,9 @@ async def receber_arquivo(message: Message):
         reply_markup=menu_confirmar_livro()
     )
 
+
 @dp.callback_query(F.data == "fechar_capitulos")
 async def fechar_capitulos(callback: CallbackQuery):
-
     await callback.answer()
 
     await callback.message.edit_text(
@@ -1897,10 +1835,10 @@ async def fechar_capitulos(callback: CallbackQuery):
         "Escolha uma opção:",
         reply_markup=menu_confirmar_livro()
     )
-    
+
+
 @dp.callback_query(F.data.startswith("abrir_capitulo_"))
 async def abrir_capitulo(callback: CallbackQuery):
-
     admin = callback.from_user.id
 
     numero = int(
@@ -1919,15 +1857,13 @@ async def abrir_capitulo(callback: CallbackQuery):
         )
         return
 
-
     texto = (
         f"📖 CAPÍTULO {numero}\n\n"
-        f"{capitulos[numero-1]['texto']}"
+        f"{capitulos[numero - 1]['texto']}"
     )
 
-
     paginas = [
-        texto[i:i+3500]
+        texto[i:i + 3500]
         for i in range(
             0,
             len(texto),
@@ -1935,12 +1871,9 @@ async def abrir_capitulo(callback: CallbackQuery):
         )
     ]
 
-
     paginas_capitulos[admin] = paginas
 
-
     await callback.answer()
-
 
     await callback.message.edit_text(
         f"{paginas[0]}\n\n"
@@ -1951,9 +1884,9 @@ async def abrir_capitulo(callback: CallbackQuery):
         )
     )
 
+
 @dp.callback_query(F.data.startswith("pagina_cap_"))
 async def pagina_capitulo(callback: CallbackQuery):
-
     await callback.answer()
 
     admin = callback.from_user.id
@@ -1965,9 +1898,7 @@ async def pagina_capitulo(callback: CallbackQuery):
         )
     )
 
-
     paginas = paginas_capitulos.get(admin)
-
 
     if not paginas:
         await callback.answer(
@@ -1976,24 +1907,21 @@ async def pagina_capitulo(callback: CallbackQuery):
         )
         return
 
-
     if pagina < 1 or pagina > len(paginas):
         await callback.answer()
         return
 
-
     await callback.answer()
 
-
     await callback.message.edit_text(
-        f"{paginas[pagina-1]}\n\n"
+        f"{paginas[pagina - 1]}\n\n"
         f"Página {pagina}/{len(paginas)}",
         reply_markup=menu_pagina_capitulo(
             pagina,
             len(paginas)
         )
     )
-    
+
 
 @dp.message(F.chat.type == "private", F.sticker)
 async def receber_figurinha(message: Message):
@@ -2047,7 +1975,7 @@ async def receber_figurinha(message: Message):
     id_pedido, nome, pedido_texto, grupo_msg_id, msg_registrada_id, chave_livro, status = pedido
 
     link_acervo = None
-    
+
     numero = numero_visual(id_pedido, status)
 
     legenda = formatar_mensagem_config(
@@ -2072,7 +2000,7 @@ async def receber_figurinha(message: Message):
             ""
         )
     )
-    
+
     for indice, pacote in enumerate(pacotes_pendentes[admin_id]):
 
         legenda = formatar_mensagem_config(
@@ -2095,27 +2023,27 @@ async def receber_figurinha(message: Message):
             numero_serie=pacotes_pendentes[admin_id][0].get(
                 "numero_serie",
                 ""
-            )        
+            )
         )
 
         caption = legenda
-            
+
         if pacote["traducao"]:
             caption += f"\n\n🌐 Tradução: {pacote['traducao']}"
 
         if pacote.get("hashtags"):
             caption += (
-                "\n\n✨ Tags\n"
-                + "\n".join(pacote["hashtags"])
+                    "\n\n✨ Tags\n"
+                    + "\n".join(pacote["hashtags"])
             )
 
         if (
-            pacote.get("sinopse")
-            and pegar_config("usar_sinopse") == "1"
+                pacote.get("sinopse")
+                and pegar_config("usar_sinopse") == "1"
         ):
             caption += (
-                "\n\n📖 SINOPSE:\n\n"
-                + pacote["sinopse"]
+                    "\n\n📖 SINOPSE:\n\n"
+                    + pacote["sinopse"]
             )
 
         msg_acervo = await bot.send_photo(
@@ -2131,7 +2059,6 @@ async def receber_figurinha(message: Message):
         )
 
         for arquivo_id in pacote["arquivos"]:
-
             await bot.send_document(
                 chat_id=GRUPO_ACERVO,
                 document=arquivo_id
@@ -2149,7 +2076,6 @@ async def receber_figurinha(message: Message):
             ))
 
     conn.commit()
-    
 
     await bot.send_sticker(
         chat_id=GRUPO_ACERVO,
@@ -2166,7 +2092,7 @@ async def receber_figurinha(message: Message):
     ))
 
     conn.commit()
-    
+
     mensagem_concluida = formatar_mensagem_config(
         "msg_concluida",
         nome=nome,
@@ -2188,7 +2114,7 @@ async def receber_figurinha(message: Message):
             )
         except:
             pass
-    
+
     print("=== DEBUG ===")
     print("GRUPO_PEDIDOS:", GRUPO_PEDIDOS)
     print("grupo_msg_id:", grupo_msg_id)
@@ -2205,9 +2131,8 @@ async def receber_figurinha(message: Message):
     except Exception as e:
         print("ERRO:", e)
 
-    
     pacotes_pendentes.pop(admin_id, None)
-    
+
     await message.answer(
         "✅ Arquivo(s) enviados com sucesso!\n\n"
         "🎯 A missão continua aberta.\n"
@@ -2230,7 +2155,7 @@ async def cancelar_envio(callback: CallbackQuery):
 
     pacotes_pendentes[admin_id] = []
     pedido_selecionado[admin_id] = pedido_id
-    
+
     await callback.message.answer(
         "❌ Envio cancelado.\n\n"
         "Os arquivos preparados foram descartados.\n"
@@ -2289,7 +2214,7 @@ async def nao_encontrei(callback: CallbackQuery):
             chat_id=GRUPO_PEDIDOS,
             sticker=sticker_id,
             reply_to_message_id=grupo_msg_id
-)
+        )
 
     cursor.execute("""
     UPDATE pedidos
@@ -2440,7 +2365,7 @@ async def editar_msg_arquivo(callback: CallbackQuery):
         "{autor} = nome do autor\n"
         "{serie} = nome da série\n"
         "{numero_serie} = número do livro na série\n\n"
-   )
+    )
 
 
 @dp.callback_query(F.data == "editar_msg_nao_encontrei")
@@ -2537,7 +2462,9 @@ async def limpar(callback: CallbackQuery):
         reply_markup=menu_pv()
     )
 
+
 from aiogram.filters import Command
+
 
 @dp.message(Command("teste"))
 async def teste(message: Message):
@@ -2552,7 +2479,7 @@ async def teste(message: Message):
     )
 
     await message.answer("✅ Teste concluído.")
-    
+
 
 async def set_commands():
     commands = [
