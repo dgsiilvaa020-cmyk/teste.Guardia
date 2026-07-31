@@ -1458,13 +1458,17 @@ async def receber_texto_personalizado(message: Message):
     )
     
 
-@dp.message()
-async def debug(message: Message):
-    print("===================")
-    print("CHAT:", message.chat.id)
-    print("NOME:", message.chat.title)
-    print("TEXTO:")
-    print(message.text)
+@dp.message(F.chat.id == GRUPO_PEDIDOS)
+async def registrar_pedido(message: Message):
+    print("========== REGISTRAR PEDIDO ==========")
+    print("Chat:", message.chat.id)
+    print("Tipo:", message.content_type)
+    print("Texto:", message.text)
+
+    texto = message.text or message.caption or ""
+
+    if not texto:
+        return
 
     user = message.from_user
     nome = user.full_name
