@@ -1186,7 +1186,6 @@ def menu_missao_acoes(pedido_id):
     kb.adjust(1)
     return kb.as_markup()
 
-
 def menu_corrigir_ebooks(livros):
 
     kb = InlineKeyboardBuilder()
@@ -1208,7 +1207,50 @@ def menu_corrigir_ebooks(livros):
     kb.adjust(4)
 
     return kb.as_markup()
-    
+
+def menu_acoes_correcao(pedido_id):
+
+    kb = InlineKeyboardBuilder()
+
+    kb.button(
+        text="✏️ Corrigir título",
+        callback_data=f"corrigir_titulo_{pedido_id}"
+    )
+
+    kb.button(
+        text="✍️ Corrigir autor",
+        callback_data=f"corrigir_autor_{pedido_id}"
+    )
+
+    kb.button(
+        text="📝 Corrigir sinopse",
+        callback_data=f"corrigir_sinopse_{pedido_id}"
+    )
+
+    kb.button(
+        text="🏷️ Corrigir hashtags",
+        callback_data=f"corrigir_tags_{pedido_id}"
+    )
+
+    kb.button(
+        text="🖼️ Trocar capa",
+        callback_data=f"trocar_capa_{pedido_id}"
+    )
+
+    kb.button(
+        text="🔄 Reenviar para acervo",
+        callback_data=f"reenviar_{pedido_id}"
+    )
+
+    kb.button(
+        text="⬅️ Voltar",
+        callback_data="corrigir_ebook"
+    )
+
+    kb.adjust(2)
+
+    return kb.as_markup()
+
 @dp.message(Command("start"))
 async def start(message: Message):
     if message.chat.type != "private":
@@ -1467,6 +1509,94 @@ async def toggle_hashtags(callback: CallbackQuery):
 @dp.message(F.chat.type == "private", F.text)
 async def receber_texto_personalizado(message: Message):
     if not autorizado(message.from_user.id):
+        return
+
+    if modo_edicao.get(message.from_user.id) == "corrigir_titulo":
+
+        pedido_id = livro_correcao_selecionado.get(
+            message.from_user.id
+        )
+
+
+        if not pedido_id:
+            await message.answer(
+                "⚠️ Nenhum livro selecionado."
+            )
+            return
+
+
+        cursor.execute("""
+        UPDATE livros_pacotes
+        SET nome_livro = ?
+        WHERE pedido_id = ?
+        """,
+        (
+            message.text,
+            pedido_id
+        ))
+
+        conn.commit()
+
+
+        modo_edicao.pop(
+            message.from_user.id,
+            None
+        )
+
+        livro_correcao_selecionado.pop(
+            message.from_user.id,
+            None
+        )
+
+
+        await message.answer(
+            "✅ Título corrigido com sucesso!"
+        )
+
+        return
+
+        if modo_edicao.get(message.from_user.id) == "corrigir_autor":
+
+        pedido_id = livro_correcao_selecionado.get(
+            message.from_user.id
+        )
+
+
+        if not pedido_id:
+            await message.answer(
+                "⚠️ Nenhum livro selecionado."
+            )
+            return
+
+
+        cursor.execute("""
+        UPDATE livros_pacotes
+        SET autor = ?
+        WHERE pedido_id = ?
+        """,
+        (
+            message.text,
+            pedido_id
+        ))
+
+        conn.commit()
+
+
+        modo_edicao.pop(
+            message.from_user.id,
+            None
+        )
+
+        livro_correcao_selecionado.pop(
+            message.from_user.id,
+            None
+        )
+
+
+        await message.answer(
+            "✅ Autor corrigido com sucesso!"
+        )
+
         return
 
     chave = modo_edicao.get(message.from_user.id)
@@ -2762,8 +2892,73 @@ async def corrigir_pedido(callback: CallbackQuery):
 
 
     await callback.message.edit_text(
-        texto,
-        parse_mode="HTML"
+        texto + "\n\nEscolha o que deseja corrigir:",
+        parse_mode="HTML",
+        reply_markup=menu_acoes_correcao(pedido_id)
+    )
+
+@dp.callback_query(F.data.startswith("corrigir_titulo_"))
+async def iniciar_correcao_titulo(callback: CallbackQuery):
+
+    if not autorizado(callback.from_user.id):
+        await callback.answer(
+            "Sem permissão.",
+            show_alert=True
+        )
+        return
+
+
+    await callback.answer()
+
+
+    pedido_id = int(
+        callback.data.replace(
+            "corrigir_titulo_",
+            ""
+        )
+    )
+
+
+    livro_correcao_selecionado[callback.from_user.id] = pedido_id
+
+
+    modo_edicao[callback.from_user.id] = "corrigir_titulo"
+
+
+    await callback.message.answer(
+        "✏️ Envie agora o novo título do livro."
+    )
+
+@dp.callback_query(F.data.startswith("corrigir_autor_"))
+async def iniciar_correcao_autor(callback: CallbackQuery):
+
+    if not autorizado(callback.from_user.id):
+        await callback.answer(
+            "Sem permissão.",
+            show_alert=True
+        )
+        return
+
+
+    await callback.answer()
+
+
+    pedido_id = int(
+        callback.data.replace(
+            "corrigir_autor_",
+            ""
+        )
+    )
+
+
+    livro_correcao_selecionado[callback.from_user.id] = pedido_id
+
+
+    modo_edicao[callback.from_user.id] = "corrigir_autor"
+
+
+    await callback.message.answer(
+        "✍️ Envie agora o novo autor do livro."
     )
 
 async def set_commands():
