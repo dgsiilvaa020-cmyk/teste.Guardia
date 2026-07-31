@@ -2126,6 +2126,36 @@ async def receber_figurinha(message: Message):
     
     for indice, pacote in enumerate(pacotes_pendentes[admin_id]):
 
+
+        # SALVAR LIVRO NO BANCO
+        cursor.execute("""
+        INSERT INTO livros_pacotes
+        (
+            pedido_id,
+            numero_pacote,
+            nome_livro,
+            autor,
+            serie,
+            numero_serie,
+            capa_id,
+            arquivo_id
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            pedido_id,
+            indice + 1,
+            pacote.get("nome_livro"),
+            pacote.get("autor"),
+            pacote.get("serie"),
+            pacote.get("numero_serie"),
+            pacote.get("capa"),
+            str(pacote.get("arquivos"))
+        ))
+
+        conn.commit()
+    
+
         legenda = formatar_mensagem_config(
             "msg_arquivo",
             nome=nome,
