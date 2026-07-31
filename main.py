@@ -1930,6 +1930,10 @@ async def receber_arquivo(message: Message):
         pacote["serie"] = dados["serie"]
         pacote["numero_serie"] = dados["numero_serie"]
 
+        print("========== PACOTE APÓS SALVAR ==========")
+        print(pacote)
+        print("========================================")
+
         chave_livro = remover_acentos(
             pacote.get("nome_livro", "").lower()
         )
@@ -2191,11 +2195,6 @@ async def receber_figurinha(message: Message):
         ))
 
         conn.commit()
-
-        print("========== PACOTE ==========")
-        print("Nome:", pacote.get("nome_livro"))
-        print("Autor:", pacote.get("autor"))
-        print("============================")
     
         legenda = formatar_mensagem_config(
             "msg_arquivo",
