@@ -692,7 +692,18 @@ def extrair_nome_livro(texto):
         "nome do livro",
         "titulo",
         "título",
-        "nome"
+        "nome",
+        "nome da obra",
+        "obra",
+        "book",
+        "book name",
+        "title",
+        "nome do ebook",
+        "nome do e-book",
+        "ebook",
+        "e-book",
+        "titulo do livro",
+        "título do livro"
     ]
 
     for linha in linhas:
@@ -722,19 +733,31 @@ def extrair_autor(texto):
         "autor(a)",
         "escritor",
         "escritora",
+        "writer",
+        "author",
         "nome do autor",
-        "nome da autora"
+        "nome da autora",
+        "autor do livro",
+        "autora do livro",
+        "autor da obra",
+        "autora da obra",
+        "criado por",
+        "escrito por",
+        "written by"
     ]
 
     for linha in linhas:
         linha_original = linha.strip()
         linha_limpa = remover_acentos(linha_original.lower())
 
-        if ":" not in linha_original:
+        import re
+
+        resultado = re.split(r"[:=\-–➡]+", linha_original, maxsplit=1)
+
+        if len(resultado) != 2:
             continue
 
-        campo, valor = linha_original.split(":", 1)
-        campo = remover_acentos(campo.lower())
+        campo, valor = resultado
 
         if any(palavra in campo for palavra in palavras):
             valor = valor.strip()
