@@ -200,26 +200,16 @@ CREATE TABLE IF NOT EXISTS entregues (
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS livros_pacotes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-
     pedido_id INTEGER,
-
     numero_pacote INTEGER,
-
     nome_livro TEXT,
-
     autor TEXT,
-
     serie TEXT,
-
     numero_serie TEXT,
-
     capa_id TEXT,
-
     arquivo_id TEXT,
-
     criado_em TEXT DEFAULT CURRENT_TIMESTAMP
 )
-""")
 
 conn.commit()
 
@@ -981,6 +971,11 @@ def menu_pv():
     kb.button(text="🧠 Arquivo Inteligente", callback_data="arquivo_inteligente")
 
     kb.button(
+        text="✏️ Corrigir eBook",
+        callback_data="corrigir_ebook"
+    )
+
+    kb.button(
         text="⚙️ Configurações",
         callback_data="configuracoes"
     )
@@ -1188,6 +1183,29 @@ def menu_missao_acoes(pedido_id):
     return kb.as_markup()
 
 
+def menu_corrigir_ebooks(livros):
+
+    kb = InlineKeyboardBuilder()
+
+    for livro in livros:
+
+        id_livro = livro[0]
+        nome = livro[1] or "Livro sem nome"
+
+        kb.button(
+            text=f"📚 {nome}",
+            callback_data=f"corrigir_livro_{id_livro}"
+        )
+
+    kb.button(
+        text="⬅️ Voltar",
+        callback_data="voltar_menu"
+    )
+
+    kb.adjust(1)
+
+    return kb.as_markup()
+    
 @dp.message(Command("start"))
 async def start(message: Message):
     if message.chat.type != "private":
@@ -2580,6 +2598,42 @@ async def editar_sticker_nao_encontrei(callback: CallbackQuery):
         "🖼️ Envie agora a figurinha usada em “não encontrei o livro”."
     )
 
+@dp.callback_query(F.data == "corrigir_ebook")
+async def abrir_corrigir_ebook(callback: CallbackQuery):
+
+    if not autorizado(callback.from_user.id):
+        await callback.answer("Sem permissão.", show_alert=True)
+        return
+
+
+    await callback.answer()
+
+
+    cursor.execute("""
+    SELECT id, nome_livro
+    FROM livros_pacotes
+    ORDER BY id DESC
+    """)
+
+
+    livros = cursor.fetchall()
+
+
+    if not livros:
+
+        await callback.message.answer(
+            "📚 Nenhum eBook encontrado para corrigir.",
+            reply_markup=menu_pv()
+        )
+
+        return
+
+
+    await callback.message.answer(
+        "✏️ Escolha o eBook que deseja corrigir:",
+        reply_markup=menu_corrigir_ebooks(livros)
+    )
+    
 
 @dp.callback_query(F.data == "voltar_menu")
 async def voltar_menu(callback: CallbackQuery):
