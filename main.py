@@ -227,6 +227,9 @@ paginas_capitulos = {}
 
 modo_edicao = {}
 
+correcoes_pendentes = {}
+livro_correcao_selecionado = {}
+
 hashtags_selecionadas = {}
 
 hashtags_disponiveis = {
@@ -1190,12 +1193,11 @@ def menu_corrigir_ebooks(livros):
 
     for livro in livros:
 
-        id_livro = livro[0]
-        nome = livro[1] or "Livro sem nome"
+        pedido_id = livro[0]
 
         kb.button(
-            text=f"📚 {nome}",
-            callback_data=f"corrigir_livro_{id_livro}"
+            text=f"📚 Pedido #{pedido_id:03d}",
+            callback_data=f"corrigir_pedido_{pedido_id}"
         )
 
     kb.button(
@@ -1203,7 +1205,7 @@ def menu_corrigir_ebooks(livros):
         callback_data="voltar_menu"
     )
 
-    kb.adjust(1)
+    kb.adjust(4)
 
     return kb.as_markup()
     
@@ -2606,16 +2608,14 @@ async def abrir_corrigir_ebook(callback: CallbackQuery):
         await callback.answer("Sem permissão.", show_alert=True)
         return
 
-
     await callback.answer()
 
-
     cursor.execute("""
-    SELECT id, nome_livro
+    SELECT pedido_id
     FROM livros_pacotes
-    ORDER BY id DESC
+    GROUP BY pedido_id
+    ORDER BY pedido_id DESC
     """)
-
 
     livros = cursor.fetchall()
 
@@ -2623,11 +2623,18 @@ async def abrir_corrigir_ebook(callback: CallbackQuery):
     if not livros:
 
         await callback.message.answer(
-            "📚 Nenhum eBook encontrado para corrigir.",
+            "📚 Nenhum eBook salvo para corrigir.",
             reply_markup=menu_pv()
         )
 
         return
+
+
+    await callback.message.edit_text(
+        "🛠️ Corrigir E-books\n\n"
+        "Escolha um pedido:",
+        reply_markup=menu_corrigir_ebooks(livros)
+    )
 
 
     await callback.message.answer(
