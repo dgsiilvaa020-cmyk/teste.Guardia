@@ -2354,7 +2354,7 @@ async def receber_figurinha(message: Message):
 
     cursor.execute("""
     UPDATE pedidos
-    SET status = 'pendente', figurinha_id = ?
+    SET status = 'concluido', figurinha_id = ?
     WHERE id = ?
     """, (
         message.sticker.file_id,
@@ -2485,7 +2485,7 @@ async def nao_encontrei(callback: CallbackQuery):
             chat_id=GRUPO_PEDIDOS,
             sticker=sticker_id,
             reply_to_message_id=grupo_msg_id
-)
+        )
 
     cursor.execute("""
     UPDATE pedidos
@@ -2636,6 +2636,7 @@ async def editar_msg_arquivo(callback: CallbackQuery):
         "{autor} = nome do autor\n"
         "{serie} = nome da série\n"
         "{numero_serie} = número do livro na série\n\n"
+        f"Mensagem atual:\n\n{atual}"
    )
 
 
