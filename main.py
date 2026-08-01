@@ -1233,23 +1233,18 @@ def menu_edicao_livro(id_livro):
     kb = InlineKeyboardBuilder()
 
     kb.button(
-        text="📖 Corrigir nome do livro",
+        text="📖 Nome do livro",
         callback_data=f"editar_nome_{id_livro}"
     )
 
     kb.button(
-        text="✍️ Corrigir autor",
+        text="✍️ Autor",
         callback_data=f"editar_autor_{id_livro}"
     )
 
     kb.button(
-        text="📚 Corrigir série",
-        callback_data=f"editar_serie_{id_livro}"
-    )
-
-    kb.button(
-        text="🔢 Corrigir número da série",
-        callback_data=f"editar_numero_{id_livro}"
+        text="📤 Atualizar no Acervo",
+        callback_data=f"atualizar_livro_{id_livro}"
     )
 
     kb.button(
@@ -1257,7 +1252,8 @@ def menu_edicao_livro(id_livro):
         callback_data="corrigir_ebook"
     )
 
-    kb.adjust(1)
+    # estilo igual ao das hashtags
+    kb.adjust(2, 1, 1)
 
     return kb.as_markup()
     
