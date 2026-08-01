@@ -2813,7 +2813,7 @@ async def editar_autor_livro(callback: CallbackQuery):
 @dp.callback_query(F.data.startswith("atualizar_livro_"))
 async def atualizar_livro_acervo(callback: CallbackQuery):
 
-     print("ENTROU NO ATUALIZAR LIVRO")
+    print("ENTROU NO ATUALIZAR LIVRO")
 
     if not autorizado(callback.from_user.id):
         return
