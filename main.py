@@ -215,6 +215,15 @@ CREATE TABLE IF NOT EXISTS livros_pacotes (
 
 conn.commit()
 
+try:
+    cursor.execute("""
+    ALTER TABLE livros_pacotes
+    ADD COLUMN msg_acervo_id INTEGER
+    """)
+    conn.commit()
+except:
+    pass
+
 pedido_selecionado = {}
 
 # Cada administrador terá vários pacotes
@@ -2297,6 +2306,21 @@ async def receber_figurinha(message: Message):
 
         pacote["msg_acervo_id"] = msg_acervo.message_id
 
+
+        cursor.execute("""
+        UPDATE livros_pacotes
+        SET msg_acervo_id = ?
+        WHERE pedido_id = ?
+        AND numero_pacote = ?
+        """,
+        (
+            msg_acervo.message_id,
+            pedido_id,
+            indice + 1
+        ))
+
+        conn.commit()
+
         link_acervo = criar_link_mensagem(
             GRUPO_ACERVO,
             msg_acervo.message_id
@@ -2858,7 +2882,7 @@ async def atualizar_livro_acervo(callback: CallbackQuery):
     # pega dados da mensagem do acervo
 
     cursor.execute("""
-    SELECT capa_id, msg_acervo_id
+    SELECT msg_acervo_id
     FROM livros_pacotes
     WHERE id = ?
     """,
@@ -2866,21 +2890,21 @@ async def atualizar_livro_acervo(callback: CallbackQuery):
 
     resultado = cursor.fetchone()
 
+
     if resultado:
 
-        capa_id, msg_id = resultado
+        msg_id = resultado[0]
+
 
         if msg_id:
 
             print("DEBUG ATUALIZAR ACERVO")
-            print("GRUPO:", GRUPO_ACERVO)
-            print("MSG ID:", msg_id)
-            print("DADOS:", dados)
+            print("MSG:", msg_id)
 
 
-            # busca a mensagem antiga no grupo
-            mensagem = await bot.get_message(
-                chat_id=GRUPO_ACERVO,
+            mensagem = await bot.forward_message(
+                chat_id=callback.from_user.id,
+                from_chat_id=GRUPO_ACERVO,
                 message_id=msg_id
             )
 
@@ -2893,42 +2917,33 @@ async def atualizar_livro_acervo(callback: CallbackQuery):
 
             nova_legenda = []
 
-            nome_trocado = False
-            autor_trocado = False
-
 
             for linha in linhas:
 
-                if linha.startswith("📖 ") and not nome_trocado:
+                if linha.startswith("📖 "):
 
                     nova_legenda.append(
                         f"📖 {dados['nome_livro']}"
                     )
 
-                    nome_trocado = True
+            elif linha.startswith("✍️ "):
 
+                nova_legenda.append(
+                    f"✍️ {dados['autor']}"
+                )
 
-                elif linha.startswith("✍️ ") and not autor_trocado:
+            else:
 
-                    nova_legenda.append(
-                        f"✍️ {dados['autor']}"
-                    )
-
-                    autor_trocado = True
-
-
-                else:
-
-                    nova_legenda.append(linha)
+                nova_legenda.append(linha)
 
 
 
-            await bot.edit_message_caption(
-                chat_id=GRUPO_ACERVO,
-                message_id=msg_id,
-                caption="\n".join(nova_legenda),
-                parse_mode="HTML"
-            )
+        await bot.edit_message_caption(
+            chat_id=GRUPO_ACERVO,
+            message_id=msg_id,
+            caption="\n".join(nova_legenda),
+            parse_mode="HTML"
+        )
     
     alteracoes_livro.pop(admin, None)
 
