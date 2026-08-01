@@ -208,6 +208,7 @@ CREATE TABLE IF NOT EXISTS livros_pacotes (
     numero_serie TEXT,
     capa_id TEXT,
     arquivo_id TEXT,
+    msg_acervo_id INTEGER,
     criado_em TEXT DEFAULT CURRENT_TIMESTAMP
 )
 """)
@@ -2294,6 +2295,8 @@ async def receber_figurinha(message: Message):
             parse_mode="HTML"
         )
 
+        pacote["msg_acervo_id"] = msg_acervo.message_id
+
         link_acervo = criar_link_mensagem(
             GRUPO_ACERVO,
             msg_acervo.message_id
@@ -2836,7 +2839,6 @@ async def atualizar_livro_acervo(callback: CallbackQuery):
         )
         return
 
-
     cursor.execute("""
     UPDATE livros_pacotes
     SET nome_livro = ?,
@@ -2849,10 +2851,65 @@ async def atualizar_livro_acervo(callback: CallbackQuery):
         id_livro
     ))
 
-
     conn.commit()
 
+    # pega dados da mensagem do acervo
 
+    cursor.execute("""
+    SELECT capa_id, msg_acervo_id
+    FROM livros_pacotes
+    WHERE id = ?
+    """,
+    (id_livro,))
+
+    resultado = cursor.fetchone()
+
+
+    if resultado:
+
+        capa_id, msg_id = resultado
+
+        if msg_id:
+
+            mensagem = await bot.get_message(
+                chat_id=GRUPO_ACERVO,
+                message_id=msg_id
+            )
+
+            legenda_antiga = mensagem.caption or ""
+
+            linhas = legenda_antiga.split("\n")
+
+            nova_legenda = []
+
+            nome_trocado = False
+            autor_trocado = False
+
+            for linha in linhas:
+
+                if linha.startswith("📖 ") and not nome_trocado:
+                    nova_legenda.append(
+                        f"📖 {dados['nome_livro']}"
+                    )
+                    nome_trocado = True
+
+                elif linha.startswith("✍️ ") and not autor_trocado:
+                    nova_legenda.append(
+                        f"✍️ {dados['autor']}"
+                    )
+                    autor_trocado = True
+
+                else:
+                    nova_legenda.append(linha)
+
+
+            await bot.edit_message_caption(
+                chat_id=GRUPO_ACERVO,
+                message_id=msg_id,
+                caption="\n".join(nova_legenda),
+                parse_mode="HTML"
+            )
+    
     alteracoes_livro.pop(admin, None)
 
 
