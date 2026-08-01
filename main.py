@@ -2926,17 +2926,15 @@ async def atualizar_livro_acervo(callback: CallbackQuery):
                         f"📖 {dados['nome_livro']}"
                     )
 
-            elif linha.startswith("✍️ "):
+                elif linha.startswith("✍️ "):
 
-                nova_legenda.append(
-                    f"✍️ {dados['autor']}"
-                )
+                    nova_legenda.append(
+                        f"✍️ {dados['autor']}"
+                    )
 
-            else:
+                else:
 
-                nova_legenda.append(linha)
-
-
+                    nova_legenda.append(linha)
 
         await bot.edit_message_caption(
             chat_id=GRUPO_ACERVO,
