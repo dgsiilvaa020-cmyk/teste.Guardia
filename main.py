@@ -2864,55 +2864,55 @@ async def atualizar_livro_acervo(callback: CallbackQuery):
 
     resultado = cursor.fetchone()
 
-   if resultado:
+if resultado:
 
-       capa_id, msg_id = resultado
+    capa_id, msg_id = resultado
 
-       if msg_id:
+    if msg_id:
 
-           print("DEBUG ATUALIZAR ACERVO")
-           print("GRUPO:", GRUPO_ACERVO)
-           print("MSG ID:", msg_id)
-           print("DADOS:", dados)
+        print("DEBUG ATUALIZAR ACERVO")
+        print("GRUPO:", GRUPO_ACERVO)
+        print("MSG ID:", msg_id)
+        print("DADOS:", dados)
 
-           mensagem = await bot.get_message(
-               chat_id=GRUPO_ACERVO,
-               message_id=msg_id
-           )
+        mensagem = await bot.get_message(
+            chat_id=GRUPO_ACERVO,
+            message_id=msg_id
+        )
 
-           legenda_antiga = mensagem.caption or ""
+        legenda_antiga = mensagem.caption or ""
 
-           linhas = legenda_antiga.split("\n")
+        linhas = legenda_antiga.split("\n")
 
-           nova_legenda = []
+        nova_legenda = []
 
-           nome_trocado = False
-           autor_trocado = False
+        nome_trocado = False
+        autor_trocado = False
 
-           for linha in linhas:
+        for linha in linhas:
 
-               if linha.startswith("📖 ") and not nome_trocado:
-                   nova_legenda.append(
-                       f"📖 {dados['nome_livro']}"
-                   )
-                   nome_trocado = True
+            if linha.startswith("📖 ") and not nome_trocado:
+                nova_legenda.append(
+                    f"📖 {dados['nome_livro']}"
+                )
+                nome_trocado = True
 
-               elif linha.startswith("✍️ ") and not autor_trocado:
-                   nova_legenda.append(
-                       f"✍️ {dados['autor']}"
-                   )
-                   autor_trocado = True
+            elif linha.startswith("✍️ ") and not autor_trocado:
+                nova_legenda.append(
+                    f"✍️ {dados['autor']}"
+                )
+                autor_trocado = True
 
-               else:
-                   nova_legenda.append(linha)
+            else:
+                nova_legenda.append(linha)
 
 
-           await bot.edit_message_caption(
-               chat_id=GRUPO_ACERVO,
-               message_id=msg_id,
-               caption="\n".join(nova_legenda),
-               parse_mode="HTML"
-           )
+        await bot.edit_message_caption(
+            chat_id=GRUPO_ACERVO,
+            message_id=msg_id,
+            caption="\n".join(nova_legenda),
+            parse_mode="HTML"
+        )
     
     alteracoes_livro.pop(admin, None)
 
