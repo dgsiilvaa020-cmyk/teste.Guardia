@@ -229,6 +229,12 @@ modo_edicao = {}
 
 hashtags_selecionadas = {}
 
+# Guarda qual livro está sendo corrigido por cada administrador
+livros_corrigindo = {}
+
+# Guarda alterações temporárias antes de atualizar
+alteracoes_livro = {}
+
 hashtags_disponiveis = {
 
     "🧙 Fantasia": [
@@ -1508,6 +1514,36 @@ async def receber_texto_personalizado(message: Message):
     if not chave:
         return
 
+        if chave == "nome_livro":
+
+        admin = message.from_user.id
+
+        alteracoes_livro[admin]["nome_livro"] = message.text
+
+        modo_edicao.pop(admin, None)
+
+        await message.answer(
+            "✅ Nome do livro alterado!\n\n"
+            "Agora volte e clique em 📤 Atualizar no Acervo."
+        )
+
+        return
+
+    if chave == "autor_livro":
+
+        admin = message.from_user.id
+
+        alteracoes_livro[admin]["autor"] = message.text
+
+        modo_edicao.pop(admin, None)
+
+        await message.answer(
+            "✅ Autor/Autora alterado!\n\n"
+            "Agora volte e clique em 📤 Atualizar no Acervo."
+        )
+
+        return
+
     if chave == "sticker_nao_encontrei":
         await message.answer("⚠️ Envie uma figurinha, não uma mensagem de texto.")
         return
@@ -2696,6 +2732,13 @@ async def corrigir_livro(callback: CallbackQuery):
 
     _, nome, autor, serie, numero = livro
 
+    livros_corrigindo[callback.from_user.id] = id_livro
+
+    alteracoes_livro[callback.from_user.id] = {
+        "nome_livro": nome,
+        "autor": autor
+    }
+
     await callback.message.edit_text(
         "✏️ Corrigir eBook\n\n"
         f"📖 Nome do livro:\n{nome}\n\n"
@@ -2704,6 +2747,115 @@ async def corrigir_livro(callback: CallbackQuery):
         reply_markup=menu_edicao_livro(id_livro)
     )
     
+@dp.callback_query(F.data.startswith("editar_nome_"))
+async def editar_nome_livro(callback: CallbackQuery):
+
+    if not autorizado(callback.from_user.id):
+        return
+
+    id_livro = int(
+        callback.data.replace(
+            "editar_nome_",
+            ""
+        )
+    )
+
+    livros_corrigindo[callback.from_user.id] = id_livro
+
+    modo_edicao[callback.from_user.id] = "nome_livro"
+
+
+    await callback.answer()
+
+
+    await callback.message.edit_text(
+        "📖 Envie agora o novo nome do livro:"
+    )
+
+@dp.callback_query(F.data.startswith("editar_autor_"))
+async def editar_autor_livro(callback: CallbackQuery):
+
+    if not autorizado(callback.from_user.id):
+        return
+
+    id_livro = int(
+        callback.data.replace(
+            "editar_autor_",
+            ""
+        )
+    )
+
+    livros_corrigindo[callback.from_user.id] = id_livro
+
+    modo_edicao[callback.from_user.id] = "autor_livro"
+
+
+    await callback.answer()
+
+
+    await callback.message.edit_text(
+        "✍️ Envie agora o nome do autor ou autora:"
+    )
+
+@dp.callback_query(F.data.startswith("atualizar_livro_"))
+async def atualizar_livro_acervo(callback: CallbackQuery):
+
+    if not autorizado(callback.from_user.id):
+        return
+
+
+    admin = callback.from_user.id
+
+
+    id_livro = int(
+        callback.data.replace(
+            "atualizar_livro_",
+            ""
+        )
+    )
+
+
+    dados = alteracoes_livro.get(admin)
+
+
+    if not dados:
+
+        await callback.answer(
+            "Nenhuma alteração encontrada.",
+            show_alert=True
+        )
+        return
+
+
+    cursor.execute("""
+    UPDATE livros_pacotes
+    SET nome_livro = ?,
+        autor = ?
+    WHERE id = ?
+    """,
+    (
+        dados["nome_livro"],
+        dados["autor"],
+        id_livro
+    ))
+
+
+    conn.commit()
+
+
+    alteracoes_livro.pop(admin, None)
+
+
+    await callback.answer()
+
+
+    await callback.message.edit_text(
+        "✅ eBook atualizado com sucesso!\n\n"
+        f"📖 {dados['nome_livro']}\n"
+        f"✍️ {dados['autor']}",
+        reply_markup=menu_pv()
+    )
+
 @dp.callback_query(F.data == "voltar_menu")
 async def voltar_menu(callback: CallbackQuery):
     if not autorizado(callback.from_user.id):
