@@ -2304,6 +2304,22 @@ async def receber_figurinha(message: Message):
             parse_mode="HTML"
         )
 
+        cursor.execute("""
+        UPDATE livros_pacotes
+        SET msg_acervo_id = ?,
+            legenda = ?
+        WHERE pedido_id = ?
+        AND numero_pacote = ?
+        """,
+        (
+            msg_acervo.message_id,
+            caption,
+            pedido_id,
+            indice + 1
+        ))
+
+        conn.commit()
+
         pacote["msg_acervo_id"] = msg_acervo.message_id
 
 
@@ -2903,21 +2919,25 @@ async def atualizar_livro_acervo(callback: CallbackQuery):
             print("MSG:", msg_id)
 
 
-            mensagem = await bot.forward_message(
-                chat_id=callback.from_user.id,
-                from_chat_id=GRUPO_ACERVO,
-                message_id=msg_id
-            )
+            try:
+                cursor.execute("""
+                SELECT legenda
+                FROM livros_pacotes
+                WHERE id = ?
+                """,
+                (id_livro,))
 
+                resultado = cursor.fetchone()
 
-            legenda_antiga = mensagem.caption or ""
+                legenda_antiga = resultado[0] if resultado else ""
 
+            except Exception as e:
+                print("ERRO PEGANDO MENSAGEM DO ACERVO:", e)
+                legenda_antiga = ""
 
             linhas = legenda_antiga.split("\n")
 
-
             nova_legenda = []
-
 
             for linha in linhas:
 
