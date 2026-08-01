@@ -1204,7 +1204,6 @@ def menu_missao_acoes(pedido_id):
     kb.adjust(1)
     return kb.as_markup()
 
-
 def menu_corrigir_ebooks(livros):
 
     kb = InlineKeyboardBuilder()
@@ -1224,7 +1223,8 @@ def menu_corrigir_ebooks(livros):
         callback_data="voltar_menu"
     )
 
-    kb.adjust(1)
+    # igual hashtags: 4 botões por linha
+    kb.adjust(4)
 
     return kb.as_markup()
 
@@ -1238,7 +1238,7 @@ def menu_edicao_livro(id_livro):
     )
 
     kb.button(
-        text="✍️ Autor",
+        text="✍️ Autor/Autora",
         callback_data=f"editar_autor_{id_livro}"
     )
 
@@ -1252,7 +1252,6 @@ def menu_edicao_livro(id_livro):
         callback_data="corrigir_ebook"
     )
 
-    # estilo igual ao das hashtags
     kb.adjust(2, 1, 1)
 
     return kb.as_markup()
@@ -2654,7 +2653,7 @@ async def abrir_corrigir_ebook(callback: CallbackQuery):
         return
 
 
-    await callback.message.answer(
+    await callback.message.edit_text(
         "✏️ Escolha o eBook que deseja corrigir:",
         reply_markup=menu_corrigir_ebooks(livros)
     )
@@ -2697,18 +2696,14 @@ async def corrigir_livro(callback: CallbackQuery):
 
     _, nome, autor, serie, numero = livro
 
-
-    await callback.message.answer(
-        "✏️ Corrigir livro\n\n"
-        f"📖 Nome atual:\n{nome}\n\n"
-        f"✍️ Autor:\n{autor}\n\n"
-        f"📚 Série:\n{serie or 'Sem série'}\n"
-        f"🔢 Número:\n{numero or '-'}\n\n"
+    await callback.message.edit_text(
+        "✏️ Corrigir eBook\n\n"
+        f"📖 Nome do livro:\n{nome}\n\n"
+        f"✍️ Autor/Autora:\n{autor}\n\n"
         "Escolha o que deseja alterar:",
         reply_markup=menu_edicao_livro(id_livro)
     )
     
-
 @dp.callback_query(F.data == "voltar_menu")
 async def voltar_menu(callback: CallbackQuery):
     if not autorizado(callback.from_user.id):
@@ -2717,7 +2712,7 @@ async def voltar_menu(callback: CallbackQuery):
 
     await callback.answer()
 
-    await callback.message.answer(
+    await callback.message.edit_text(
         "📚 Menu principal:",
         reply_markup=menu_pv()
     )
