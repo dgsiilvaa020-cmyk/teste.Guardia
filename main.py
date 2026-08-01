@@ -1514,7 +1514,7 @@ async def receber_texto_personalizado(message: Message):
     if not chave:
         return
 
-        if chave == "nome_livro":
+    if chave == "nome_livro":
 
         admin = message.from_user.id
 
