@@ -1522,9 +1522,14 @@ async def receber_texto_personalizado(message: Message):
 
         modo_edicao.pop(admin, None)
 
+
+        id_livro = livros_corrigindo.get(admin)
+
+
         await message.answer(
             "✅ Nome do livro alterado!\n\n"
-            "Agora volte e clique em 📤 Atualizar no Acervo."
+            "Confira a alteração e clique em atualizar:",
+            reply_markup=menu_edicao_livro(id_livro)
         )
 
         return
@@ -1537,9 +1542,14 @@ async def receber_texto_personalizado(message: Message):
 
         modo_edicao.pop(admin, None)
 
+
+        id_livro = livros_corrigindo.get(admin)
+
+
         await message.answer(
             "✅ Autor/Autora alterado!\n\n"
-            "Agora volte e clique em 📤 Atualizar no Acervo."
+            "Confira a alteração e clique em atualizar:",
+            reply_markup=menu_edicao_livro(id_livro)
         )
 
         return
