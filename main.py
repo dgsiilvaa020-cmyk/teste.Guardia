@@ -2871,6 +2871,11 @@ async def atualizar_livro_acervo(callback: CallbackQuery):
 
         if msg_id:
 
+             print("DEBUG ATUALIZAR ACERVO")
+             print("GRUPO:", GRUPO_ACERVO)
+             print("MSG ID:", msg_id)
+             print("DADOS:", dados)
+            
             mensagem = await bot.get_message(
                 chat_id=GRUPO_ACERVO,
                 message_id=msg_id
