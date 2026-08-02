@@ -1633,6 +1633,9 @@ async def receber_texto_personalizado(message: Message):
 
     if chave == "editar_nome_livro":
 
+        print("NOVO NOME:", message.text)
+        print("ID LIVRO:", id_livro)
+
         cursor.execute("""
         UPDATE livros_pacotes
         SET nome_livro = ?
@@ -1661,6 +1664,9 @@ async def receber_texto_personalizado(message: Message):
     # ==========================
 
     if chave == "editar_autor_livro":
+
+        print("NOVO AUTOR:", message.text)
+        print("ID LIVRO:", id_livro)
 
         cursor.execute("""
         UPDATE livros_pacotes
@@ -3096,14 +3102,21 @@ async def atualizar_livro(callback: CallbackQuery):
         count=1
     )
 
+    if nova_legenda.strip() != (legenda or "").strip():
 
-    await bot.edit_message_caption(
-        chat_id=GRUPO_ACERVO,
-        message_id=mensagem_acervo_id,
-        caption=nova_legenda,
-        parse_mode="HTML"
-    )
+        await bot.edit_message_caption(
+            chat_id=GRUPO_ACERVO,
+            message_id=mensagem_acervo_id,
+            caption=nova_legenda,
+            parse_mode="HTML"
+        )
 
+    else:
+        await callback.answer(
+            "⚠️ A legenda já está atualizada.",
+            show_alert=True
+        )
+        return
 
     cursor.execute("""
     UPDATE livros_pacotes
