@@ -212,6 +212,10 @@ CREATE TABLE IF NOT EXISTS livros_pacotes (
     mensagem_acervo_id INTEGER,
     legenda TEXT,
 
+    traducao TEXT,
+    hashtags TEXT,
+    sinopse TEXT,
+
     criado_em TEXT DEFAULT CURRENT_TIMESTAMP
 )
 """)
@@ -230,6 +234,32 @@ try:
     cursor.execute("""
         ALTER TABLE livros_pacotes
         ADD COLUMN legenda TEXT
+    """)
+except sqlite3.OperationalError:
+    pass
+
+conn.commit()
+
+try:
+    cursor.execute("""
+        ALTER TABLE livros_pacotes
+        ADD COLUMN traducao TEXT
+    """)
+except sqlite3.OperationalError:
+    pass
+
+try:
+    cursor.execute("""
+        ALTER TABLE livros_pacotes
+        ADD COLUMN hashtags TEXT
+    """)
+except sqlite3.OperationalError:
+    pass
+
+try:
+    cursor.execute("""
+        ALTER TABLE livros_pacotes
+        ADD COLUMN sinopse TEXT
     """)
 except sqlite3.OperationalError:
     pass
@@ -2848,95 +2878,6 @@ async def editar_nome_livro(callback: CallbackQuery):
     await callback.message.answer(
         "📖 Envie agora o novo nome do livro."
     )
-
-@dp.callback_query(F.data.startswith("atualizar_livro_"))
-async def atualizar_livro(callback: CallbackQuery):
-
-    if not autorizado(callback.from_user.id):
-        return
-
-    await callback.answer()
-
-    id_livro = int(
-        callback.data.replace(
-            "atualizar_livro_",
-            ""
-        )
-    )
-
-    cursor.execute("""
-    SELECT
-        nome_livro,
-        autor,
-        capa_id,
-        legenda,
-        mensagem_acervo_id
-    FROM livros_pacotes
-    WHERE id = ?
-    """, (id_livro,))
-
-    livro = cursor.fetchone()
-
-    if not livro:
-        await callback.message.answer(
-            "❌ Livro não encontrado."
-        )
-        return
-
-    nome, autor, capa, legenda, mensagem_id = livro
-
-    if not legenda:
-        await callback.message.answer(
-            "❌ Este livro não possui legenda salva."
-        )
-        return
-
-    linhas = legenda.split("\n")
-
-    nova_legenda = []
-
-    for linha in linhas:
-
-        if "📖" in linha:
-            nova_legenda.append(f"📖 {nome}")
-
-        elif "✍️" in linha:
-            nova_legenda.append(f"✍️ {autor}")
-
-        else:
-            nova_legenda.append(linha)
-
-    nova_legenda = "\n".join(nova_legenda)
-
-    try:
-
-        await bot.edit_message_caption(
-            chat_id=GRUPO_ACERVO,
-            message_id=mensagem_id,
-            caption=nova_legenda,
-            parse_mode="HTML"
-        )
-
-        cursor.execute("""
-        UPDATE livros_pacotes
-        SET legenda = ?
-        WHERE id = ?
-        """, (
-            nova_legenda,
-            id_livro
-        ))
-
-        conn.commit()
-
-        await callback.message.answer(
-            "✅ Livro atualizado no acervo!"
-        )
-
-    except Exception as e:
-
-        await callback.message.answer(
-            f"Erro:\n{e}"
-        )
     
 async def set_commands():
     commands = [
