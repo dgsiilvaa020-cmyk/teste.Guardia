@@ -2833,9 +2833,21 @@ async def corrigir_livro(callback: CallbackQuery):
             "❌ Livro não encontrado."
         )
         return
-
-
-    _, nome, autor, serie, numero = livro
+    (
+        pedido_id,
+        nome,
+        autor,
+        serie,
+        numero_serie,
+        traducao,
+        hashtags,
+        sinopse,
+        capa_id,
+        arquivo_id,
+        nome_solicitante,
+        numero_missao,
+        legenda
+    ) = livro
 
     await callback.message.edit_text(
         "✏️ Corrigir eBook\n\n"
