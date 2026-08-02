@@ -3143,12 +3143,12 @@ async def atualizar_livro(callback: CallbackQuery):
             else:
                 raise e
 
-            else:
-                await callback.answer(
-                    "⚠️ A legenda já está atualizada.",
-                    show_alert=True
-                )
-                return
+        else:
+            await callback.answer(
+                "⚠️ A legenda já está atualizada.",
+                show_alert=True
+            )
+            return
 
     cursor.execute("""
     UPDATE livros_pacotes
