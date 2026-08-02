@@ -1590,6 +1590,35 @@ async def receber_texto_personalizado(message: Message):
         if not id_livro:
             return
 
+    if chave == "editar_autor_livro":
+
+        id_livro = livro_em_edicao.get(message.from_user.id)
+
+        if not id_livro:
+            return
+
+        cursor.execute("""
+        UPDATE livros_pacotes
+        SET autor = ?
+        WHERE id = ?
+        """, (
+            message.text,
+            id_livro
+        ))
+
+        conn.commit()
+
+        modo_edicao.pop(message.from_user.id, None)
+
+        livro_em_edicao.pop(message.from_user.id, None)
+
+        await message.answer(
+            "✅ Autor/Autora atualizado!\n\n"
+            "Agora toque em 📤 Atualizar no Acervo."
+        )
+
+        return
+
         cursor.execute("""
         UPDATE livros_pacotes
         SET nome_livro = ?
@@ -2933,6 +2962,29 @@ async def editar_nome_livro(callback: CallbackQuery):
         "📖 Envie agora o novo nome do livro."
     )
 
+@dp.callback_query(F.data.startswith("editar_autor_"))
+async def editar_autor_livro(callback: CallbackQuery):
+
+    if not autorizado(callback.from_user.id):
+        return
+
+    await callback.answer()
+
+    id_livro = int(
+        callback.data.replace(
+            "editar_autor_",
+            ""
+        )
+    )
+
+    livro_em_edicao[callback.from_user.id] = id_livro
+
+    modo_edicao[callback.from_user.id] = "editar_autor_livro"
+
+    await callback.message.answer(
+        "✍️ Envie agora o novo nome do autor/autora."
+    )
+
 @dp.callback_query(F.data.startswith("atualizar_livro_"))
 async def atualizar_livro(callback: CallbackQuery):
 
@@ -2945,15 +2997,10 @@ async def atualizar_livro(callback: CallbackQuery):
 
     cursor.execute("""
     SELECT
-        pedido_id,
         nome_livro,
         autor,
-        serie,
-        numero_serie,
-        traducao,
-        hashtags,
-        sinopse,
-        mensagem_acervo_id
+        mensagem_acervo_id,
+        legenda
     FROM livros_pacotes
     WHERE id = ?
     """, (id_livro,))
@@ -2965,18 +3012,9 @@ async def atualizar_livro(callback: CallbackQuery):
         return
 
     (
-        pedido_id,
         nome_livro,
         autor,
-        serie,
-        numero_serie,
-        traducao,
-        hashtags,
-        sinopse,
-        capa_id,
-        arquivo_id,
-        nome_solicitante,
-        numero_missao,
+        mensagem_acervo_id,
         legenda
     ) = livro
 
@@ -3000,23 +3038,12 @@ async def atualizar_livro(callback: CallbackQuery):
     )
 
     # Reenvia a capa com a legenda atualizada
-    nova_msg = await bot.send_photo(
+    await bot.edit_message_caption(
         chat_id=GRUPO_ACERVO,
-        photo=capa_id,
+        message_id=mensagem_acervo_id,
         caption=nova_legenda,
         parse_mode="HTML"
     )
-
-    # Reenvia todos os arquivos do pacote
-    import ast
-
-    arquivos = ast.literal_eval(arquivo_id)
-
-    for arquivo in arquivos:
-        await bot.send_document(
-            chat_id=GRUPO_ACERVO,
-            document=arquivo
-        )
 
     # Procura a figurinha da missão
     cursor.execute("""
