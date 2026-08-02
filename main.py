@@ -216,6 +216,9 @@ CREATE TABLE IF NOT EXISTS livros_pacotes (
     hashtags TEXT,
     sinopse TEXT,
 
+    nome_solicitante TEXT,
+    numero_missao TEXT,
+
     criado_em TEXT DEFAULT CURRENT_TIMESTAMP
 )
 """)
@@ -260,6 +263,24 @@ try:
     cursor.execute("""
         ALTER TABLE livros_pacotes
         ADD COLUMN sinopse TEXT
+    """)
+except sqlite3.OperationalError:
+    pass
+
+conn.commit()
+
+try:
+    cursor.execute("""
+        ALTER TABLE livros_pacotes
+        ADD COLUMN nome_solicitante TEXT
+    """)
+except sqlite3.OperationalError:
+    pass
+
+try:
+    cursor.execute("""
+        ALTER TABLE livros_pacotes
+        ADD COLUMN numero_missao TEXT
     """)
 except sqlite3.OperationalError:
     pass
@@ -2263,8 +2284,11 @@ async def receber_figurinha(message: Message):
             traducao,
             hashtags,
             sinopse
+
+            nome_solicitante,
+            numero_missao
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             pedido_id,
@@ -2277,7 +2301,10 @@ async def receber_figurinha(message: Message):
             str(pacote.get("arquivos")),
             pacote.get("traducao"),
             "\n".join(pacote.get("hashtags", [])),
-            pacote.get("sinopse")
+            pacote.get("sinopse"),
+
+            nome,
+            numero
         ))
         
         conn.commit()
@@ -2885,6 +2912,49 @@ async def editar_nome_livro(callback: CallbackQuery):
     await callback.message.answer(
         "📖 Envie agora o novo nome do livro."
     )
+
+@dp.callback_query(F.data.startswith("atualizar_livro_"))
+async def atualizar_livro(callback: CallbackQuery):
+
+    if not autorizado(callback.from_user.id):
+        return
+
+    await callback.answer()
+
+    id_livro = int(callback.data.replace("atualizar_livro_", ""))
+
+    cursor.execute("""
+    SELECT
+        pedido_id,
+        nome_livro,
+        autor,
+        serie,
+        numero_serie,
+        traducao,
+        hashtags,
+        sinopse,
+        mensagem_acervo_id
+    FROM livros_pacotes
+    WHERE id = ?
+    """, (id_livro,))
+
+    livro = cursor.fetchone()
+
+    if not livro:
+        await callback.message.answer("❌ Livro não encontrado.")
+        return
+
+    (
+        pedido_id,
+        nome_livro,
+        autor,
+        serie,
+        numero_serie,
+        traducao,
+        hashtags,
+        sinopse,
+        mensagem_acervo_id
+    ) = livro
     
 async def set_commands():
     commands = [
