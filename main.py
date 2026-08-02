@@ -1583,6 +1583,46 @@ async def receber_texto_personalizado(message: Message):
     if not chave:
         return
 
+    if chave == "sticker_nao_encontrei":
+        await message.answer("⚠️ Envie uma figurinha, não uma mensagem de texto.")
+        return
+
+    if chave == "sinopse_manual":
+
+        pacote = pacotes_pendentes[message.from_user.id][-1]
+
+        pacote["sinopse"] = message.text
+        pacote["origem_sinopse"] = "manual"
+
+        modo_edicao.pop(
+            message.from_user.id,
+            None
+        )
+
+        await message.answer(
+            "✅ Sinopse personalizada salva!",
+            reply_markup=menu_confirmar_livro()
+        )
+
+        return
+
+
+    salvar_config(chave, message.text)
+
+    modo_edicao.pop(
+        message.from_user.id,
+        None
+    )
+
+    nova = pegar_config(chave)
+
+    await message.answer(
+        "✅ Mensagem personalizada salva com sucesso!\n\n"
+        "📌 Nova mensagem salva:\n\n"
+        f"{nova}",
+        reply_markup=menu_pv()
+    )
+
     id_livro = livro_em_edicao.get(message.from_user.id)
 
     if not id_livro:
