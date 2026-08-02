@@ -2320,6 +2320,9 @@ async def receber_figurinha(message: Message):
 
         conn.commit()
 
+        print("LEGENDA SALVA:")
+        print(caption)
+
         pacote["msg_acervo_id"] = msg_acervo.message_id
 
 
