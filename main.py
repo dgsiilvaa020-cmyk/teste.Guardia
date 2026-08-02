@@ -2259,9 +2259,12 @@ async def receber_figurinha(message: Message):
             serie,
             numero_serie,
             capa_id,
-            arquivo_id
+            arquivo_id,
+            traducao,
+            hashtags,
+            sinopse
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             pedido_id,
@@ -2271,9 +2274,12 @@ async def receber_figurinha(message: Message):
             pacote.get("serie"),
             pacote.get("numero_serie"),
             pacote.get("capa"),
-            str(pacote.get("arquivos"))
+            str(pacote.get("arquivos")),
+            pacote.get("traducao"),
+            "\n".join(pacote.get("hashtags", [])),
+            pacote.get("sinopse")
         ))
-
+        
         conn.commit()
 
         print("========== PACOTE ==========")
