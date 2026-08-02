@@ -3086,7 +3086,6 @@ async def atualizar_livro(callback: CallbackQuery):
 
     livro = cursor.fetchone()
 
-
     if not livro:
         await callback.message.answer(
             "❌ Livro não encontrado."
@@ -3104,51 +3103,70 @@ async def atualizar_livro(callback: CallbackQuery):
         return
 
 
-    import re
+    legenda_antiga = legenda or ""
 
 
-    nova_legenda = legenda or ""
+    linhas = legenda_antiga.split("\n")
+
+    nova_legenda = []
+
+    nome_atualizado = False
+    autor_atualizado = False
 
 
-    nova_legenda = re.sub(
-        r"📖\s*.*",
-        f"📖 {nome_livro}",
-        nova_legenda,
-        count=1
-    )
+    for linha in linhas:
 
-
-    nova_legenda = re.sub(
-        r"✍️\s*.*",
-        f"✍️ {autor}",
-        nova_legenda,
-        count=1
-    )
-
-    if nova_legenda.strip() != (legenda or "").strip():
-
-        try:
-            await bot.edit_message_caption(
-                chat_id=GRUPO_ACERVO,
-                message_id=mensagem_acervo_id,
-                caption=nova_legenda,
-                parse_mode="HTML"
+        if linha.startswith("📖"):
+            nova_legenda.append(
+                f"📖 {nome_livro}"
             )
+            nome_atualizado = True
 
-        except Exception as e:
-
-            if "message is not modified" in str(e):
-                print("⚠️ Telegram: legenda já estava igual.")
-
-            else:
-                raise e
+        elif linha.startswith("✍️"):
+            nova_legenda.append(
+                f"✍️ {autor}"
+            )
+            autor_atualizado = True
 
         else:
-            await callback.answer(
-                "⚠️ A legenda já está atualizada.",
-                show_alert=True
+            nova_legenda.append(linha)
+
+
+    if not nome_atualizado:
+        nova_legenda.insert(
+            0,
+            f"📖 {nome_livro}"
+        )
+
+
+    if not autor_atualizado:
+        nova_legenda.insert(
+            1,
+            f"✍️ {autor}"
+        )
+
+
+    nova_legenda = "\n".join(nova_legenda)
+
+
+    try:
+
+        await bot.edit_message_caption(
+            chat_id=GRUPO_ACERVO,
+            message_id=mensagem_acervo_id,
+            caption=nova_legenda,
+            parse_mode="HTML"
+        )
+
+    except Exception as e:
+
+        if "message is not modified" not in str(e):
+            print("ERRO AO ATUALIZAR:", e)
+            await callback.message.answer(
+                f"❌ Erro ao atualizar: {e}"
             )
             return
+
 
     cursor.execute("""
     UPDATE livros_pacotes
@@ -3163,10 +3181,12 @@ async def atualizar_livro(callback: CallbackQuery):
 
 
     await callback.message.edit_text(
-        "✅ Atualização concluída!\n\n"
-        "📖 Nome do livro atualizado.\n"
+        "✅ Livro atualizado no Acervo!\n\n"
+        "📖 Nome atualizado.\n"
         "✍️ Autor atualizado.\n\n"
-        "Sinopse, hashtags e tradução foram mantidas.",
+        "📖 Sinopse mantida.\n"
+        "🏷️ Hashtags mantidas.\n"
+        "🌐 Tradução mantida.",
         reply_markup=menu_pv()
     )
     
