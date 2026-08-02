@@ -1571,10 +1571,10 @@ async def toggle_hashtags(callback: CallbackQuery):
     await callback.message.edit_reply_markup(
         reply_markup=menu_configuracoes()
     )
-
-
+    
 @dp.message(F.chat.type == "private", F.text)
 async def receber_texto_personalizado(message: Message):
+
     if not autorizado(message.from_user.id):
         return
 
@@ -1583,42 +1583,15 @@ async def receber_texto_personalizado(message: Message):
     if not chave:
         return
 
-    if chave == "editar_nome_livro":
+    id_livro = livro_em_edicao.get(message.from_user.id)
 
-        id_livro = livro_em_edicao.get(message.from_user.id)
-
-        if not id_livro:
-            return
-
-    if chave == "editar_autor_livro":
-
-        id_livro = livro_em_edicao.get(message.from_user.id)
-
-        if not id_livro:
-            return
-
-        cursor.execute("""
-        UPDATE livros_pacotes
-        SET autor = ?
-        WHERE id = ?
-        """, (
-            message.text,
-            id_livro
-        ))
-
-        conn.commit()
-
-        modo_edicao.pop(message.from_user.id, None)
-
-        livro_em_edicao.pop(message.from_user.id, None)
-
-        await message.answer(
-            "✅ Autor/Autora atualizado!\n\n"
-            "Agora toque em 📤 Atualizar no Acervo."
-            reply_markup=menu_edicao_livro(id_livro)
-        )
-
+    if not id_livro:
         return
+    # ==========================
+    # EDITAR NOME DO LIVRO
+    # ==========================
+
+    if chave == "editar_nome_livro":
 
         cursor.execute("""
         UPDATE livros_pacotes
@@ -1631,13 +1604,44 @@ async def receber_texto_personalizado(message: Message):
 
         conn.commit()
 
-        modo_edicao.pop(message.from_user.id, None)
 
+        modo_edicao.pop(message.from_user.id, None)
         livro_em_edicao.pop(message.from_user.id, None)
+
 
         await message.answer(
             "✅ Nome do livro atualizado!\n\n"
-            "Agora toque em 📤 Atualizar no Acervo."
+            "Agora toque em 📤 Atualizar no Acervo.",
+            reply_markup=menu_edicao_livro(id_livro)
+        )
+
+        return
+    # ==========================
+    # EDITAR AUTOR
+    # ==========================
+
+    if chave == "editar_autor_livro":
+
+        cursor.execute("""
+        UPDATE livros_pacotes
+        SET autor = ?
+        WHERE id = ?
+        """, (
+            message.text,
+            id_livro
+        ))
+
+        conn.commit()
+
+
+        modo_edicao.pop(message.from_user.id, None)
+        livro_em_edicao.pop(message.from_user.id, None)
+
+
+        await message.answer(
+            "✅ Autor/Autora atualizado!\n\n"
+            "Agora toque em 📤 Atualizar no Acervo.",
+            reply_markup=menu_edicao_livro(id_livro)
         )
 
         return
