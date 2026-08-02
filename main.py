@@ -208,9 +208,31 @@ CREATE TABLE IF NOT EXISTS livros_pacotes (
     numero_serie TEXT,
     capa_id TEXT,
     arquivo_id TEXT,
+
+    mensagem_acervo_id INTEGER,
+    legenda TEXT,
+
     criado_em TEXT DEFAULT CURRENT_TIMESTAMP
 )
 """)
+
+conn.commit()
+
+try:
+    cursor.execute("""
+        ALTER TABLE livros_pacotes
+        ADD COLUMN mensagem_acervo_id INTEGER
+    """)
+except sqlite3.OperationalError:
+    pass
+
+try:
+    cursor.execute("""
+        ALTER TABLE livros_pacotes
+        ADD COLUMN legenda TEXT
+    """)
+except sqlite3.OperationalError:
+    pass
 
 conn.commit()
 
