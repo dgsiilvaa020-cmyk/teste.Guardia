@@ -2270,6 +2270,22 @@ async def receber_figurinha(message: Message):
             parse_mode="HTML"
         )
 
+        # Salva o ID da mensagem enviada e a legenda completa
+        cursor.execute("""
+        UPDATE livros_pacotes
+        SET mensagem_acervo_id = ?,
+            legenda = ?
+        WHERE pedido_id = ?
+        AND numero_pacote = ?
+        """, (
+            msg_acervo.message_id,
+            caption,
+            pedido_id,
+            indice + 1
+        ))
+
+        conn.commit()
+
         link_acervo = criar_link_mensagem(
             GRUPO_ACERVO,
             msg_acervo.message_id
