@@ -204,6 +204,8 @@ CREATE TABLE IF NOT EXISTS livros_pacotes (
     numero_pacote INTEGER,
     nome_livro TEXT,
     autor TEXT,
+    nome_livro_antigo TEXT,
+    autor_antigo TEXT,
     serie TEXT,
     numero_serie TEXT,
     capa_id TEXT,
@@ -2357,6 +2359,8 @@ async def receber_figurinha(message: Message):
             numero_pacote,
             nome_livro,
             autor,
+            nome_livro_antigo,
+            autor_antigo,
             serie,
             numero_serie,
             capa_id,
@@ -2376,6 +2380,8 @@ async def receber_figurinha(message: Message):
             pacote.get("nome_livro"),
             pacote.get("autor"),
             pacote.get("serie"),
+            pacote.get("nome_livro"),
+            pacote.get("autor"),
             pacote.get("numero_serie"),
             pacote.get("capa"),
             str(pacote.get("arquivos")),
@@ -3078,6 +3084,8 @@ async def atualizar_livro(callback: CallbackQuery):
     SELECT
         nome_livro,
         autor,
+        nome_livro_antigo,
+        autor_antigo,
         legenda,
         mensagem_acervo_id
     FROM livros_pacotes
@@ -3093,7 +3101,14 @@ async def atualizar_livro(callback: CallbackQuery):
         return
 
 
-    nome_livro, autor, legenda, mensagem_acervo_id = livro
+    (
+       nome_livro,
+       autor,
+       nome_livro_antigo,
+       autor_antigo,
+       legenda,
+       mensagem_acervo_id
+   ) = livro
 
 
     if not mensagem_acervo_id:
@@ -3102,16 +3117,25 @@ async def atualizar_livro(callback: CallbackQuery):
         )
         return
 
-
     legenda_antiga = legenda or ""
 
 
-    linhas = legenda_antiga.split("\n")
+    nova_legenda = legenda or ""
 
-    nova_legenda = []
+    if nome_livro_antigo:
+        nova_legenda = nova_legenda.replace(
+            nome_livro_antigo,
+            nome_livro,
+            1
+        )
 
-    nome_atualizado = False
-    autor_atualizado = False
+
+    if autor_antigo:
+        nova_legenda = nova_legenda.replace(
+            autor_antigo,
+            autor,
+            1
+        )
 
 
     for linha in linhas:
