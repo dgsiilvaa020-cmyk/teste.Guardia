@@ -2282,6 +2282,9 @@ async def receber_figurinha(message: Message):
         
         conn.commit()
 
+        # ID do livro salvo no banco
+        id_livro = cursor.lastrowid
+
         print("========== PACOTE ==========")
         print("Nome:", pacote.get("nome_livro"))
         print("Autor:", pacote.get("autor"))
@@ -2342,13 +2345,11 @@ async def receber_figurinha(message: Message):
         UPDATE livros_pacotes
         SET mensagem_acervo_id = ?,
             legenda = ?
-        WHERE pedido_id = ?
-        AND numero_pacote = ?
+        WHERE id = ?
         """, (
             msg_acervo.message_id,
             caption,
-            pedido_id,
-            indice + 1
+            id_livro
         ))
 
         conn.commit()
