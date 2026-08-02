@@ -2808,12 +2808,20 @@ async def corrigir_livro(callback: CallbackQuery):
     )
 
     cursor.execute("""
-    SELECT 
-        id,
+    SELECT
+        pedido_id,
         nome_livro,
         autor,
         serie,
-        numero_serie
+        numero_serie,
+        traducao,
+        hashtags,
+        sinopse,
+        capa_id,
+        arquivo_id,
+        nome_solicitante,
+        numero_missao,
+        legenda
     FROM livros_pacotes
     WHERE id = ?
     """, (id_livro,))
@@ -2953,8 +2961,83 @@ async def atualizar_livro(callback: CallbackQuery):
         traducao,
         hashtags,
         sinopse,
-        mensagem_acervo_id
+        capa_id,
+        arquivo_id,
+        nome_solicitante,
+        numero_missao,
+        legenda
     ) = livro
+
+    # Atualiza somente a parte da legenda referente ao livro e autora
+    nova_legenda = legenda
+
+    import re
+
+    nova_legenda = re.sub(
+        r"📖\s*.*",
+        f"📖 {nome_livro}",
+        nova_legenda,
+        count=1
+    )
+
+    nova_legenda = re.sub(
+        r"✍️\s*.*",
+        f"✍️ {autor}",
+        nova_legenda,
+        count=1
+    )
+
+    # Reenvia a capa com a legenda atualizada
+    nova_msg = await bot.send_photo(
+        chat_id=GRUPO_ACERVO,
+        photo=capa_id,
+        caption=nova_legenda,
+        parse_mode="HTML"
+    )
+
+    # Reenvia todos os arquivos do pacote
+    import ast
+
+    arquivos = ast.literal_eval(arquivo_id)
+
+    for arquivo in arquivos:
+        await bot.send_document(
+            chat_id=GRUPO_ACERVO,
+            document=arquivo
+        )
+
+    # Procura a figurinha da missão
+    cursor.execute("""
+    SELECT figurinha_id
+    FROM pedidos
+    WHERE id = ?
+    """, (pedido_id,))
+
+    resultado = cursor.fetchone()
+
+    if resultado and resultado[0]:
+        await bot.send_sticker(
+            chat_id=GRUPO_ACERVO,
+            sticker=resultado[0]
+        )
+
+    # Atualiza a legenda salva no banco
+    cursor.execute("""
+    UPDATE livros_pacotes
+    SET legenda = ?
+    WHERE id = ?
+    """, (
+        nova_legenda,
+        id_livro
+    ))
+
+    conn.commit()
+
+    await callback.message.edit_text(
+        "✅ eBook atualizado com sucesso!\n\n"
+        "A capa, os arquivos e a figurinha foram reenviados ao acervo com a legenda corrigida.",
+        reply_markup=menu_pv()
+    )
     
 async def set_commands():
     commands = [
