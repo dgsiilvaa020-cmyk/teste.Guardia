@@ -3094,13 +3094,15 @@ async def atualizar_livro(callback: CallbackQuery):
 
     # Atualiza a legenda salva no banco
     cursor.execute("""
-    UPDATE livros_pacotes
-    SET legenda = ?
-    WHERE id = ?
-    """, (
-        nova_legenda,
-        id_livro
-    ))
+        UPDATE livros_pacotes
+        SET legenda = ?
+        WHERE id = ?
+        """,
+        (
+            nova_legenda,
+            id_livro
+        )
+    )
 
     conn.commit()
 
