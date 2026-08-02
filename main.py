@@ -3012,6 +3012,7 @@ async def atualizar_livro(callback: CallbackQuery):
         sinopse,
         mensagem_acervo_id
     FROM livros_pacotes
+    """, (id_livro,))
 
     livro = cursor.fetchone()
 
