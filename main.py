@@ -3007,6 +3007,29 @@ async def editar_nome_livro(callback: CallbackQuery):
 
     livro_em_edicao[callback.from_user.id] = id_livro
 
+    cursor.execute("""
+    SELECT nome_livro, autor
+    FROM livros_pacotes
+    WHERE id = ?
+    """, (id_livro,))
+
+    livro = cursor.fetchone()
+
+    if livro:
+        nome, autor = livro
+    else:
+        nome = "Não informado"
+        autor = "Não informado"
+
+
+    await callback.message.edit_text(
+        "✏️ Corrigir eBook\n\n"
+        f"📖 Nome do livro:\n{nome}\n\n"
+        f"✍️ Autor/Autora:\n{autor}\n\n"
+        "Escolha o que deseja alterar:",
+        reply_markup=menu_edicao_livro(id_livro)
+    )
+
     modo_edicao[callback.from_user.id] = "editar_nome_livro"
 
     await callback.message.answer(
@@ -3104,12 +3127,21 @@ async def atualizar_livro(callback: CallbackQuery):
 
     if nova_legenda.strip() != (legenda or "").strip():
 
-        await bot.edit_message_caption(
-            chat_id=GRUPO_ACERVO,
-            message_id=mensagem_acervo_id,
-            caption=nova_legenda,
-            parse_mode="HTML"
-        )
+try:
+    await bot.edit_message_caption(
+        chat_id=GRUPO_ACERVO,
+        message_id=mensagem_acervo_id,
+        caption=nova_legenda,
+        parse_mode="HTML"
+    )
+
+except Exception as e:
+
+    if "message is not modified" in str(e):
+        print("⚠️ Telegram: legenda já estava igual.")
+
+    else:
+        raise e
 
     else:
         await callback.answer(
