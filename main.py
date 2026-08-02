@@ -3127,28 +3127,28 @@ async def atualizar_livro(callback: CallbackQuery):
 
     if nova_legenda.strip() != (legenda or "").strip():
 
-try:
-    await bot.edit_message_caption(
-        chat_id=GRUPO_ACERVO,
-        message_id=mensagem_acervo_id,
-        caption=nova_legenda,
-        parse_mode="HTML"
-    )
+        try:
+            await bot.edit_message_caption(
+                chat_id=GRUPO_ACERVO,
+                message_id=mensagem_acervo_id,
+                caption=nova_legenda,
+                parse_mode="HTML"
+            )
 
-except Exception as e:
+        except Exception as e:
 
-    if "message is not modified" in str(e):
-        print("⚠️ Telegram: legenda já estava igual.")
+            if "message is not modified" in str(e):
+                print("⚠️ Telegram: legenda já estava igual.")
 
-    else:
-        raise e
+            else:
+                raise e
 
-    else:
-        await callback.answer(
-            "⚠️ A legenda já está atualizada.",
-            show_alert=True
-        )
-        return
+            else:
+                await callback.answer(
+                    "⚠️ A legenda já está atualizada.",
+                    show_alert=True
+                )
+                return
 
     cursor.execute("""
     UPDATE livros_pacotes
