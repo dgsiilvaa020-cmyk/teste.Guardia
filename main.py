@@ -3029,7 +3029,7 @@ async def editar_autor_livro(callback: CallbackQuery):
     await callback.message.answer(
         "✍️ Envie agora o novo nome do autor/autora."
     )
-
+    
 @dp.callback_query(F.data.startswith("atualizar_livro_"))
 async def atualizar_livro(callback: CallbackQuery):
 
@@ -3038,48 +3038,48 @@ async def atualizar_livro(callback: CallbackQuery):
 
     await callback.answer()
 
-    id_livro = int(callback.data.replace("atualizar_livro_", ""))
+    id_livro = int(
+        callback.data.replace(
+            "atualizar_livro_",
+            ""
+        )
+    )
 
     cursor.execute("""
     SELECT
-        pedido_id,
         nome_livro,
         autor,
-        serie,
-        numero_serie,
-        traducao,
-        hashtags,
-        sinopse,
+        legenda,
         mensagem_acervo_id
     FROM livros_pacotes
+    WHERE id = ?
     """, (id_livro,))
 
     livro = cursor.fetchone()
 
+
     if not livro:
-        await callback.message.answer("❌ Livro não encontrado.")
+        await callback.message.answer(
+            "❌ Livro não encontrado."
+        )
         return
 
-    (
-        pedido_id,
-        nome_livro,
-        autor,
-        serie,
-        numero_serie,
-        traducao,
-        hashtags,
-        sinopse,
-        capa_id,
-        arquivo_id,
-        nome_solicitante,
-        numero_missao,
-        legenda
-    ) = livro
 
-    # Atualiza somente a parte da legenda referente ao livro e autora
-    nova_legenda = legenda
+    nome_livro, autor, legenda, mensagem_acervo_id = livro
+
+
+    if not mensagem_acervo_id:
+        await callback.message.answer(
+            "❌ Esse livro não possui mensagem registrada no acervo."
+        )
+        return
+
 
     import re
+
+
+    nova_legenda = legenda or ""
+
 
     nova_legenda = re.sub(
         r"📖\s*.*",
@@ -3088,6 +3088,7 @@ async def atualizar_livro(callback: CallbackQuery):
         count=1
     )
 
+
     nova_legenda = re.sub(
         r"✍️\s*.*",
         f"✍️ {autor}",
@@ -3095,7 +3096,7 @@ async def atualizar_livro(callback: CallbackQuery):
         count=1
     )
 
-    # Reenvia a capa com a legenda atualizada
+
     await bot.edit_message_caption(
         chat_id=GRUPO_ACERVO,
         message_id=mensagem_acervo_id,
@@ -3103,53 +3104,24 @@ async def atualizar_livro(callback: CallbackQuery):
         parse_mode="HTML"
     )
 
-    # Procura a figurinha da missão
+
     cursor.execute("""
-    SELECT pedido_id
-    FROM livros_pacotes
+    UPDATE livros_pacotes
+    SET legenda = ?
     WHERE id = ?
-    """, (id_livro,))
-
-    resultado_pedido = cursor.fetchone()
-
-    if resultado_pedido:
-
-        pedido_id = resultado_pedido[0]
-
-        cursor.execute("""
-        SELECT figurinha_id
-        FROM pedidos
-        WHERE id = ?
-        """, (pedido_id,))
-
-        resultado = cursor.fetchone()
-
-    else:
-        resultado = None
-    
-    if resultado and resultado[0]:
-        await bot.send_sticker(
-            chat_id=GRUPO_ACERVO,
-            sticker=resultado[0]
-        )
-
-    # Atualiza a legenda salva no banco
-    cursor.execute("""
-        UPDATE livros_pacotes
-        SET legenda = ?
-        WHERE id = ?
-        """,
-        (
-            nova_legenda,
-            id_livro
-        )
-    )
+    """, (
+        nova_legenda,
+        id_livro
+    ))
 
     conn.commit()
 
+
     await callback.message.edit_text(
-        "✅ eBook atualizado com sucesso!\n\n"
-        "A capa, os arquivos e a figurinha foram reenviados ao acervo com a legenda corrigida.",
+        "✅ Atualização concluída!\n\n"
+        "📖 Nome do livro atualizado.\n"
+        "✍️ Autor atualizado.\n\n"
+        "Sinopse, hashtags e tradução foram mantidas.",
         reply_markup=menu_pv()
     )
     
