@@ -2283,7 +2283,7 @@ async def receber_figurinha(message: Message):
             arquivo_id,
             traducao,
             hashtags,
-            sinopse
+            sinopse,
 
             nome_solicitante,
             numero_missao
