@@ -3002,13 +3002,16 @@ async def atualizar_livro(callback: CallbackQuery):
 
     cursor.execute("""
     SELECT
+        pedido_id,
         nome_livro,
         autor,
-        mensagem_acervo_id,
-        legenda
+        serie,
+        numero_serie,
+        traducao,
+        hashtags,
+        sinopse,
+        mensagem_acervo_id
     FROM livros_pacotes
-    WHERE id = ?
-    """, (id_livro,))
 
     livro = cursor.fetchone()
 
@@ -3017,9 +3020,18 @@ async def atualizar_livro(callback: CallbackQuery):
         return
 
     (
+        pedido_id,
         nome_livro,
         autor,
-        mensagem_acervo_id,
+        serie,
+        numero_serie,
+        traducao,
+        hashtags,
+        sinopse,
+        capa_id,
+        arquivo_id,
+        nome_solicitante,
+        numero_missao,
         legenda
     ) = livro
 
