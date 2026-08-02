@@ -251,6 +251,8 @@ modo_edicao = {}
 
 hashtags_selecionadas = {}
 
+livro_em_edicao = {}
+
 hashtags_disponiveis = {
 
     "🧙 Fantasia": [
@@ -1530,6 +1532,35 @@ async def receber_texto_personalizado(message: Message):
     if not chave:
         return
 
+    if chave == "editar_nome_livro":
+
+        id_livro = livro_em_edicao.get(message.from_user.id)
+
+        if not id_livro:
+            return
+
+        cursor.execute("""
+        UPDATE livros_pacotes
+        SET nome_livro = ?
+        WHERE id = ?
+        """, (
+            message.text,
+            id_livro
+        ))
+
+        conn.commit()
+
+        modo_edicao.pop(message.from_user.id, None)
+
+        livro_em_edicao.pop(message.from_user.id, None)
+
+        await message.answer(
+            "✅ Nome do livro atualizado!\n\n"
+            "Agora toque em 📤 Atualizar no Acervo."
+        )
+
+        return
+
     if chave == "sticker_nao_encontrei":
         await message.answer("⚠️ Envie uma figurinha, não uma mensagem de texto.")
         return
@@ -2794,8 +2825,30 @@ async def teste(message: Message):
     )
 
     await message.answer("✅ Teste concluído.")
-    
 
+@dp.callback_query(F.data.startswith("editar_nome_"))
+async def editar_nome_livro(callback: CallbackQuery):
+
+    if not autorizado(callback.from_user.id):
+        return
+
+    await callback.answer()
+
+    id_livro = int(
+        callback.data.replace(
+            "editar_nome_",
+            ""
+        )
+    )
+
+    livro_em_edicao[callback.from_user.id] = id_livro
+
+    modo_edicao[callback.from_user.id] = "editar_nome_livro"
+
+    await callback.message.answer(
+        "📖 Envie agora o novo nome do livro."
+    )
+    
 async def set_commands():
     commands = [
         BotCommand(command="start", description="Abrir painel da Guardiã"),
