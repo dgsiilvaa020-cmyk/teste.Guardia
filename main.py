@@ -1615,6 +1615,7 @@ async def receber_texto_personalizado(message: Message):
         await message.answer(
             "✅ Autor/Autora atualizado!\n\n"
             "Agora toque em 📤 Atualizar no Acervo."
+            reply_markup=menu_edicao_livro(id_livro)
         )
 
         return
