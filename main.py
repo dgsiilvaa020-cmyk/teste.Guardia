@@ -208,21 +208,11 @@ CREATE TABLE IF NOT EXISTS livros_pacotes (
     numero_serie TEXT,
     capa_id TEXT,
     arquivo_id TEXT,
-    msg_acervo_id INTEGER,
     criado_em TEXT DEFAULT CURRENT_TIMESTAMP
 )
 """)
 
 conn.commit()
-
-try:
-    cursor.execute("""
-    ALTER TABLE livros_pacotes
-    ADD COLUMN msg_acervo_id INTEGER
-    """)
-    conn.commit()
-except:
-    pass
 
 pedido_selecionado = {}
 
@@ -238,12 +228,6 @@ paginas_capitulos = {}
 modo_edicao = {}
 
 hashtags_selecionadas = {}
-
-# Guarda qual livro está sendo corrigido por cada administrador
-livros_corrigindo = {}
-
-# Guarda alterações temporárias antes de atualizar
-alteracoes_livro = {}
 
 hashtags_disponiveis = {
 
@@ -1524,46 +1508,6 @@ async def receber_texto_personalizado(message: Message):
     if not chave:
         return
 
-    if chave == "nome_livro":
-
-        admin = message.from_user.id
-
-        alteracoes_livro[admin]["nome_livro"] = message.text
-
-        modo_edicao.pop(admin, None)
-
-
-        id_livro = livros_corrigindo.get(admin)
-
-
-        await message.answer(
-            "✅ Nome do livro alterado!\n\n"
-            "Confira a alteração e clique em atualizar:",
-            reply_markup=menu_edicao_livro(id_livro)
-        )
-
-        return
-
-    if chave == "autor_livro":
-
-        admin = message.from_user.id
-
-        alteracoes_livro[admin]["autor"] = message.text
-
-        modo_edicao.pop(admin, None)
-
-
-        id_livro = livros_corrigindo.get(admin)
-
-
-        await message.answer(
-            "✅ Autor/Autora alterado!\n\n"
-            "Confira a alteração e clique em atualizar:",
-            reply_markup=menu_edicao_livro(id_livro)
-        )
-
-        return
-
     if chave == "sticker_nao_encontrei":
         await message.answer("⚠️ Envie uma figurinha, não uma mensagem de texto.")
         return
@@ -2304,42 +2248,6 @@ async def receber_figurinha(message: Message):
             parse_mode="HTML"
         )
 
-        cursor.execute("""
-        UPDATE livros_pacotes
-        SET msg_acervo_id = ?,
-            legenda = ?
-        WHERE pedido_id = ?
-        AND numero_pacote = ?
-        """,
-        (
-            msg_acervo.message_id,
-            caption,
-            pedido_id,
-            indice + 1
-        ))
-
-        conn.commit()
-
-        print("LEGENDA SALVA:")
-        print(caption)
-
-        pacote["msg_acervo_id"] = msg_acervo.message_id
-
-
-        cursor.execute("""
-        UPDATE livros_pacotes
-        SET msg_acervo_id = ?
-        WHERE pedido_id = ?
-        AND numero_pacote = ?
-        """,
-        (
-            msg_acervo.message_id,
-            pedido_id,
-            indice + 1
-        ))
-
-        conn.commit()
-
         link_acervo = criar_link_mensagem(
             GRUPO_ACERVO,
             msg_acervo.message_id
@@ -2373,7 +2281,7 @@ async def receber_figurinha(message: Message):
 
     cursor.execute("""
     UPDATE pedidos
-    SET status = 'concluido', figurinha_id = ?
+    SET status = 'pendente', figurinha_id = ?
     WHERE id = ?
     """, (
         message.sticker.file_id,
@@ -2504,7 +2412,7 @@ async def nao_encontrei(callback: CallbackQuery):
             chat_id=GRUPO_PEDIDOS,
             sticker=sticker_id,
             reply_to_message_id=grupo_msg_id
-        )
+)
 
     cursor.execute("""
     UPDATE pedidos
@@ -2655,7 +2563,6 @@ async def editar_msg_arquivo(callback: CallbackQuery):
         "{autor} = nome do autor\n"
         "{serie} = nome da série\n"
         "{numero_serie} = número do livro na série\n\n"
-        f"Mensagem atual:\n\n{atual}"
    )
 
 
@@ -2789,13 +2696,6 @@ async def corrigir_livro(callback: CallbackQuery):
 
     _, nome, autor, serie, numero = livro
 
-    livros_corrigindo[callback.from_user.id] = id_livro
-
-    alteracoes_livro[callback.from_user.id] = {
-        "nome_livro": nome,
-        "autor": autor
-    }
-
     await callback.message.edit_text(
         "✏️ Corrigir eBook\n\n"
         f"📖 Nome do livro:\n{nome}\n\n"
@@ -2804,182 +2704,6 @@ async def corrigir_livro(callback: CallbackQuery):
         reply_markup=menu_edicao_livro(id_livro)
     )
     
-@dp.callback_query(F.data.startswith("editar_nome_"))
-async def editar_nome_livro(callback: CallbackQuery):
-
-    if not autorizado(callback.from_user.id):
-        return
-
-    id_livro = int(
-        callback.data.replace(
-            "editar_nome_",
-            ""
-        )
-    )
-
-    livros_corrigindo[callback.from_user.id] = id_livro
-
-    modo_edicao[callback.from_user.id] = "nome_livro"
-
-
-    await callback.answer()
-
-
-    await callback.message.edit_text(
-        "📖 Envie agora o novo nome do livro:"
-    )
-
-@dp.callback_query(F.data.startswith("editar_autor_"))
-async def editar_autor_livro(callback: CallbackQuery):
-
-    if not autorizado(callback.from_user.id):
-        return
-
-    id_livro = int(
-        callback.data.replace(
-            "editar_autor_",
-            ""
-        )
-    )
-
-    livros_corrigindo[callback.from_user.id] = id_livro
-
-    modo_edicao[callback.from_user.id] = "autor_livro"
-
-
-    await callback.answer()
-
-
-    await callback.message.edit_text(
-        "✍️ Envie agora o nome do autor ou autora:"
-    )
-
-@dp.callback_query(F.data.startswith("atualizar_livro_"))
-async def atualizar_livro_acervo(callback: CallbackQuery):
-
-    print("ENTROU NO ATUALIZAR LIVRO")
-
-    if not autorizado(callback.from_user.id):
-        return
-
-
-    admin = callback.from_user.id
-
-
-    id_livro = int(
-        callback.data.replace(
-            "atualizar_livro_",
-            ""
-        )
-    )
-
-
-    dados = alteracoes_livro.get(admin)
-
-
-    if not dados:
-
-        await callback.answer(
-            "Nenhuma alteração encontrada.",
-            show_alert=True
-        )
-        return
-
-    cursor.execute("""
-    UPDATE livros_pacotes
-    SET nome_livro = ?,
-        autor = ?
-    WHERE id = ?
-    """,
-    (
-        dados["nome_livro"],
-        dados["autor"],
-        id_livro
-    ))
-
-    conn.commit()
-
-    # pega dados da mensagem do acervo
-
-    cursor.execute("""
-    SELECT msg_acervo_id
-    FROM livros_pacotes
-    WHERE id = ?
-    """,
-    (id_livro,))
-
-    resultado = cursor.fetchone()
-
-
-    if resultado:
-
-        msg_id = resultado[0]
-
-
-        if msg_id:
-
-            print("DEBUG ATUALIZAR ACERVO")
-            print("MSG:", msg_id)
-
-
-            try:
-                cursor.execute("""
-                SELECT legenda
-                FROM livros_pacotes
-                WHERE id = ?
-                """,
-                (id_livro,))
-
-                resultado = cursor.fetchone()
-
-                legenda_antiga = resultado[0] if resultado else ""
-
-            except Exception as e:
-                print("ERRO PEGANDO MENSAGEM DO ACERVO:", e)
-                legenda_antiga = ""
-
-            linhas = legenda_antiga.split("\n")
-
-            nova_legenda = []
-
-            for linha in linhas:
-
-                if linha.startswith("📖 "):
-
-                    nova_legenda.append(
-                        f"📖 {dados['nome_livro']}"
-                    )
-
-                elif linha.startswith("✍️ "):
-
-                    nova_legenda.append(
-                        f"✍️ {dados['autor']}"
-                    )
-
-                else:
-
-                    nova_legenda.append(linha)
-
-        await bot.edit_message_caption(
-            chat_id=GRUPO_ACERVO,
-            message_id=msg_id,
-            caption="\n".join(nova_legenda),
-            parse_mode="HTML"
-        )
-    
-    alteracoes_livro.pop(admin, None)
-
-
-    await callback.answer()
-
-
-    await callback.message.edit_text(
-        "✅ eBook atualizado com sucesso!\n\n"
-        f"📖 {dados['nome_livro']}\n"
-        f"✍️ {dados['autor']}",
-        reply_markup=menu_pv()
-    )
-
 @dp.callback_query(F.data == "voltar_menu")
 async def voltar_menu(callback: CallbackQuery):
     if not autorizado(callback.from_user.id):
