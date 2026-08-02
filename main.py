@@ -3052,13 +3052,28 @@ async def atualizar_livro(callback: CallbackQuery):
 
     # Procura a figurinha da missão
     cursor.execute("""
-    SELECT figurinha_id
-    FROM pedidos
+    SELECT pedido_id
+    FROM livros_pacotes
     WHERE id = ?
-    """, (pedido_id,))
+    """, (id_livro,))
 
-    resultado = cursor.fetchone()
+    resultado_pedido = cursor.fetchone()
 
+    if resultado_pedido:
+
+        pedido_id = resultado_pedido[0]
+
+        cursor.execute("""
+        SELECT figurinha_id
+        FROM pedidos
+        WHERE id = ?
+        """, (pedido_id,))
+
+        resultado = cursor.fetchone()
+
+    else:
+        resultado = None
+    
     if resultado and resultado[0]:
         await bot.send_sticker(
             chat_id=GRUPO_ACERVO,
