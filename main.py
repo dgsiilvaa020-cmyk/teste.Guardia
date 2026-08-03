@@ -5,7 +5,7 @@ import re
 import unicodedata
 import tempfile
 
-from classificador import marcar_como_traducao
+from classificador import marcar_tipo_traducao
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message, CallbackQuery, BotCommand
@@ -2019,7 +2019,7 @@ async def escolher_traducao(callback: CallbackQuery):
 
     pacote = pacotes_pendentes[admin][-1]
 
-    marcar_como_traducao(pacote)
+    marcar_tipo_traducao(pacote)
 
 
     traducoes = {
