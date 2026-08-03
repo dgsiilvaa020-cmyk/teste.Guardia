@@ -1,30 +1,39 @@
 import sqlite3
 import re
 
+# classificador.py
+
+
 def definir_destino(pacote):
     """
-    Decide para onde o pedido será enviado.
+    Decide o grupo de destino.
     """
 
-    if pacote.get("tipo_envio") == "traducao":
+    if pacote.get("traducao") == "🤖 Tradução Mecânica":
         return "traducao"
 
     return "acervo"
 
 
-def marcar_como_traducao(pacote):
+
+def marcar_tipo_traducao(pacote):
     """
-    Marca o pacote como sendo do grupo de tradução.
+    Salva a escolha da tradução.
     """
 
-    pacote["tipo_envio"] = "traducao"
+    if pacote.get("traducao") == "🤖 Tradução Mecânica":
+        pacote["tipo_envio"] = "traducao"
+
+    else:
+        pacote["tipo_envio"] = "acervo"
 
     return pacote
 
 
-def eh_traducao(pacote):
+
+def eh_grupo_traducao(pacote):
     """
-    Verifica se o pacote é de tradução.
+    Verifica se deve ir para o grupo de tradução.
     """
 
     return pacote.get("tipo_envio") == "traducao"
