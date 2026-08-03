@@ -1978,7 +1978,7 @@ async def receber_capa(message: Message):
         "capa": message.photo[-1].file_id,
         "traducao": None,
         "arquivos": [],
-        "tipo_envio": "acervo"
+        "tipo_envio": "acervo",
         "hashtags": [],
         "sinopse": "",
         "origem_sinopse": "",
