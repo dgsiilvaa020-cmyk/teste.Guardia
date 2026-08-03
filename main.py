@@ -946,7 +946,6 @@ def extrair_dados_livro_epub(caminho, ficha_pedido="", nome_arquivo=""):
         if autores:
             autor = autores[0][0]
 
-
         # se vier nome da logo ou tradução, limpa
         if titulo:
             palavras_bloqueadas = [
@@ -958,12 +957,17 @@ def extrair_dados_livro_epub(caminho, ficha_pedido="", nome_arquivo=""):
                 "translate"
             ]
 
-            titulo_limpo = titulo.lower()
+            titulo_limpo = titulo
 
             for palavra in palavras_bloqueadas:
-                titulo_limpo = titulo_limpo.replace(palavra, "")
+                titulo_limpo = re.sub(
+                    palavra,
+                    "",
+                    titulo_limpo,
+                    flags=re.IGNORECASE
+                )
 
-            titulo = titulo_limpo.strip()
+            titulo = re.sub(r"\s+", " ", titulo_limpo).strip(" -_|")
 
         # tenta descobrir pelo início do livro
         if not titulo:
