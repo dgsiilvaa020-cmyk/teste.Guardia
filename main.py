@@ -150,6 +150,9 @@ GRUPO_ACERVO = -1004348688790
 # Grupo onde serão enviados os livros de tradução
 GRUPO_TRADUCAO = -1003837848263
 
+# Tópico Tradução dentro do grupo
+TOPICO_TRADUCAO = 9
+
 bot = Bot(BOT_TOKEN)
 dp = Dispatcher()
 
