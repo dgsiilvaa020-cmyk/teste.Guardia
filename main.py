@@ -147,6 +147,9 @@ GRUPO_PEDIDOS = -1004385510894
 # Grupo onde os Guardiões publicam os livros
 GRUPO_ACERVO = -1004348688790
 
+# Grupo onde serão enviados os livros de tradução
+GRUPO_TRADUCAO = -1003837848263
+
 bot = Bot(BOT_TOKEN)
 dp = Dispatcher()
 
@@ -2457,8 +2460,18 @@ async def receber_figurinha(message: Message):
                 + pacote["sinopse"]
             )
 
+        from classificador import definir_destino
+
+
+        destino = definir_destino(pacote)
+
+        if destino == "traducao":
+            grupo_destino = GRUPO_TRADUCAO
+        else:
+            grupo_destino = GRUPO_ACERVO
+
         msg_acervo = await bot.send_photo(
-            chat_id=GRUPO_ACERVO,
+            chat_id=grupo_destino,
             photo=pacote["capa"],
             caption=caption,
             parse_mode="HTML"
