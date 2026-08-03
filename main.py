@@ -2529,7 +2529,7 @@ async def receber_figurinha(message: Message):
         for arquivo_id in pacote["arquivos"]:
 
             await bot.send_document(
-                chat_id=grupo_destino
+                chat_id=grupo_destino,
                 message_thread_id=topico_destino,
                 document=arquivo_id
             )
