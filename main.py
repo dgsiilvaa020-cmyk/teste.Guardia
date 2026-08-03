@@ -2024,12 +2024,14 @@ async def escolher_traducao(callback: CallbackQuery):
     admin = callback.from_user.id
 
     if admin not in pacotes_pendentes or not pacotes_pendentes[admin]:
-        await callback.answer("Nenhuma capa encontrada.", show_alert=True)
+        await callback.answer(
+            "Nenhuma capa encontrada.",
+            show_alert=True
+        )
         return
 
-    pacote = pacotes_pendentes[admin][-1]
 
-    marcar_tipo_traducao(pacote)
+    pacote = pacotes_pendentes[admin][-1]
 
 
     traducoes = {
@@ -2043,10 +2045,17 @@ async def escolher_traducao(callback: CallbackQuery):
     pacote["traducao"] = traducoes.get(callback.data)
 
 
-    print("TRADUÇÃO SALVA:", pacote)
+    # AGORA sim classifica o destino
+    marcar_tipo_traducao(pacote)
 
 
-    await callback.answer("Tradução escolhida ✅")
+    print("PACOTE FINAL:")
+    print(pacote)
+
+
+    await callback.answer(
+        "Tradução escolhida ✅"
+    )
 
 
     await callback.message.edit_text(
