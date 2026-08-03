@@ -2160,9 +2160,9 @@ async def receber_arquivo(message: Message):
     texto = (
         "📚 <b>Livro analisado!</b>\n\n"
 
-        f"📖 <b>{pacote.get('nome_livro','-')}</b>\n"
+        f"✨ <b>{pacote.get('nome_livro','-')}</b>\n"
 
-        f"✍️ {pacote.get('autor','-')}\n"
+        f"🪄 {pacote.get('autor','-')}\n"
 
         f"{'📚 ' + pacote.get('serie') if pacote.get('serie') else ''}\n\n"
 
