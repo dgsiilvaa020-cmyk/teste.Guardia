@@ -5,7 +5,7 @@ import re
 
 def classificar_envio(tipo_envio):
 
-    if tipo_envio == "tradução":
+    if tipo_envio == "traducao":
         return {
             "grupo": "traducao",
             "mensagem": (
@@ -39,11 +39,13 @@ def marcar_tipo_traducao(pacote):
     if pacote.get("traducao") == "🤖 Tradução Mecânica":
         pacote["tipo_envio"] = "traducao"
 
+    elif pacote.get("traducao") == "📚 Tradução Oficial":
+        pacote["tipo_envio"] = "acervo"
+
     else:
         pacote["tipo_envio"] = "acervo"
 
     return pacote
-
 
 
 def eh_grupo_traducao(pacote):
