@@ -5,6 +5,8 @@ import re
 import unicodedata
 import tempfile
 
+from classificador import marcar_como_traducao
+
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message, CallbackQuery, BotCommand
 from aiogram.filters import Command
@@ -1976,6 +1978,7 @@ async def receber_capa(message: Message):
         "capa": message.photo[-1].file_id,
         "traducao": None,
         "arquivos": [],
+        "tipo_envio": "acervo"
         "hashtags": [],
         "sinopse": "",
         "origem_sinopse": "",
@@ -2015,6 +2018,8 @@ async def escolher_traducao(callback: CallbackQuery):
         return
 
     pacote = pacotes_pendentes[admin][-1]
+
+    marcar_como_traducao(pacote)
 
 
     traducoes = {
@@ -2082,6 +2087,8 @@ async def receber_arquivo(message: Message):
     pacote = pacotes_pendentes[admin][-1]
     
     pacote["arquivos"].append(message.document.file_id)
+
+    print("DESTINO ATUAL:", pacote.get("tipo_envio"))
 
     nome_arquivo = message.document.file_name.lower()
     nome_original_arquivo = message.document.file_name
