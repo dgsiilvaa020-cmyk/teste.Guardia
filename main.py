@@ -2117,6 +2117,11 @@ async def receber_arquivo(message: Message):
     
     pacote["arquivos"].append(message.document.file_id)
 
+    msg_carregando = await message.answer(
+        "⏳ Analisando o eBook...\n\n"
+        "Aguarde alguns segundos."
+    )
+
     print("DESTINO ATUAL:", pacote.get("tipo_envio"))
 
     nome_arquivo = message.document.file_name.lower()
@@ -2124,6 +2129,11 @@ async def receber_arquivo(message: Message):
 
 
     if nome_arquivo.endswith(".epub"):
+
+        await msg_carregando.edit_text(
+            "📖 Lendo o EPUB...\n\n"
+            "⏳ Extraindo informações do livro..."
+        )
 
         arquivo = await bot.get_file(
             message.document.file_id
@@ -2134,6 +2144,11 @@ async def receber_arquivo(message: Message):
         await bot.download_file(
             arquivo.file_path,
             caminho
+        )
+
+        await msg_carregando.edit_text(
+            "📚 Lendo metadados...\n\n"
+            "⏳ Identificando nome, autor e série..."
         )
 
         livros_capitulos[admin] = extrair_lista_capitulos_epub(
@@ -2172,6 +2187,11 @@ async def receber_arquivo(message: Message):
         ).strip()
 
         pacote["chave_livro"] = chave_livro
+
+        await msg_carregando.edit_text(
+            "🧠 Analisando o conteúdo...\n\n"
+            "⏳ Gerando sinopse e organizando informações..."
+        )
 
         resultado = analisar_livro(caminho)
 
@@ -2223,7 +2243,7 @@ async def receber_arquivo(message: Message):
         "Agora escolha as hashtags ou confirme o livro."
     )
 
-    await message.answer(
+    await msg_carregando.edit_text(
         texto,
         parse_mode="HTML",
         reply_markup=menu_confirmar_livro()
@@ -2260,6 +2280,11 @@ async def abrir_capitulo(callback: CallbackQuery):
             show_alert=True
         )
         return
+
+    await msg_carregando.edit_text(
+        "✨ Finalizando...\n\n"
+        "⏳ Preparando o painel do livro..."
+    )
 
 
     texto = (
