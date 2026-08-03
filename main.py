@@ -965,6 +965,13 @@ def extrair_dados_livro_epub(caminho, ficha_pedido=""):
 
             titulo = titulo_limpo.strip()
 
+        # tenta descobrir pelo início do livro
+        if not titulo:
+            titulo = extrair_nome_livro(texto_inicio)
+        
+        if not autor:
+            autor = extrair_autor(texto_inicio)
+
 
         if not titulo or titulo.strip() in [
             "Livro não identificado",
@@ -2072,8 +2079,8 @@ async def receber_arquivo(message: Message):
     
     pacote["arquivos"].append(message.document.file_id)
 
-
     nome_arquivo = message.document.file_name.lower()
+    nome_original_arquivo = message.document.file_name
 
 
     if nome_arquivo.endswith(".epub"):
@@ -2082,9 +2089,7 @@ async def receber_arquivo(message: Message):
             message.document.file_id
         )
 
-
         caminho = f"temp_{admin}.epub"
-
 
         await bot.download_file(
             arquivo.file_path,
@@ -2102,6 +2107,7 @@ async def receber_arquivo(message: Message):
         dados = extrair_dados_livro_epub(
             caminho,
             ficha_pedido
+            nome_original_arquivo
         )
 
         print(dados)
