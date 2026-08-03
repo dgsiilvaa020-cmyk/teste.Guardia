@@ -248,6 +248,16 @@ except sqlite3.OperationalError:
 try:
     cursor.execute("""
         ALTER TABLE livros_pacotes
+        ADD COLUMN topico_id INTEGER
+    """)
+except sqlite3.OperationalError:
+    pass
+
+conn.commit()
+
+try:
+    cursor.execute("""
+        ALTER TABLE livros_pacotes
         ADD COLUMN legenda TEXT
     """)
 except sqlite3.OperationalError:
@@ -2511,10 +2521,12 @@ async def receber_figurinha(message: Message):
         cursor.execute("""
         UPDATE livros_pacotes
         SET mensagem_acervo_id = ?,
+            topico_id = ?,
             legenda = ?
         WHERE id = ?
         """, (
             msg_acervo.message_id,
+            topico_destino,
             caption,
             id_livro
         ))
@@ -2565,18 +2577,27 @@ async def receber_figurinha(message: Message):
 
     conn.commit()
     
-    mensagem_concluida = formatar_mensagem_config(
-        "msg_concluida",
-        nome=nome,
-        nome_livro=extrair_nome_livro(pedido_texto),
-        numero_missao=numero
-    )
+    if destino == "traducao":
 
-    if link_acervo:
-        mensagem_concluida += (
-            "\n\n🕯️Seu E-book está aqui:\n"
-            f"{link_acervo}"
+        mensagem_concluida = mensagem_final_envio(
+            pacote,
+            link_acervo
         )
+
+    else:
+
+        mensagem_concluida = formatar_mensagem_config(
+            "msg_concluida",
+            nome=nome,
+            nome_livro=extrair_nome_livro(pedido_texto),
+            numero_missao=numero
+        )
+
+        if link_acervo:
+            mensagem_concluida += (
+                "\n\n🕯️ Seu E-book está aqui:\n"
+                f"{link_acervo}"
+            )
 
     if msg_registrada_id:
         try:
