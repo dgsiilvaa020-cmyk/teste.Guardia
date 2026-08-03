@@ -1,7 +1,5 @@
-__init__.py
-destino.py
-
-# classificador.py
+import sqlite3
+import re
 
 def definir_destino(pacote):
     """
