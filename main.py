@@ -3110,46 +3110,51 @@ async def atualizar_livro(callback: CallbackQuery):
 
     nova_legenda = []
 
-    nome_atualizado = False
-    autor_atualizado = False
-
+    nome_feito = False
+    autor_feito = False
 
     for linha in linhas:
 
-        if linha.startswith("📖"):
-            nova_legenda.append(
-                f"📖 {nome_livro}"
-            )
-            nome_atualizado = True
+        texto = linha.strip()
 
-        elif linha.startswith("✍️"):
-            nova_legenda.append(
-                f"✍️ {autor}"
-            )
-            autor_atualizado = True
+        # remove linhas antigas do livro
+        if (
+            nome_livro.lower() in texto.lower()
+            or texto.startswith("📖")
+            or texto.startswith("✨")
+        ):
 
-        else:
-            nova_legenda.append(linha)
+            if not nome_feito:
+                emoji = texto.split(" ")[0] if texto else "📖"
+                nova_legenda.append(f"{emoji} {nome_livro}")
+                nome_feito = True
 
+            continue
 
-    if not nome_atualizado:
-        nova_legenda.insert(
-            0,
-            f"📖 {nome_livro}"
-        )
+        # remove linhas antigas do autor
+        if (
+            autor.lower() in texto.lower()
+            or texto.startswith("✍️")
+            or texto.startswith("🪄")
+        ):
 
+            if not autor_feito:
+                emoji = texto.split(" ")[0] if texto else "✍️"
+                nova_legenda.append(f"{emoji} {autor}")
+                autor_feito = True
 
-    if not autor_atualizado:
-        nova_legenda.insert(
-            1,
-            f"✍️ {autor}"
-        )
+            continue
 
+        nova_legenda.append(linha)
 
     nova_legenda = "\n".join(nova_legenda)
 
 
     try:
+
+        print("ID LIVRO:", id_livro)
+        print("MSG ACERVO:", mensagem_acervo_id)
+        print("ATUALIZANDO...")
 
         await bot.edit_message_caption(
             chat_id=GRUPO_ACERVO,
