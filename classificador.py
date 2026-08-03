@@ -3,6 +3,22 @@ import re
 
 # classificador.py
 
+def mensagem_final_envio(pacote, link):
+
+    if pacote.get("tipo_envio") == "traducao":
+
+        return (
+            "✨ Feitiço postado no grupo de tradução!\n\n"
+            "🕯️Seu E-book está aqui:\n"
+            f"{link}"
+        )
+
+    return (
+        "✨ Feitiço concluído com sucesso!\n\n"
+        "🕯️Seu E-book está aqui:\n"
+        f"{link}"
+    )
+
 def classificar_envio(tipo_envio):
 
     if tipo_envio == "traducao":
