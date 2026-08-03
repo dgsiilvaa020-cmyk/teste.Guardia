@@ -864,7 +864,7 @@ def extrair_metadados_epub(caminho):
         print("Erro lendo metadados EPUB:", e)
         return "Livro não informado", "Autor não informado"
 
-def extrair_dados_livro_epub(caminho, ficha_pedido=""):
+def extrair_dados_livro_epub(caminho, ficha_pedido="", nome_arquivo=""):
 
     print("ENTROU NA FUNÇÃO")
 
@@ -2106,7 +2106,7 @@ async def receber_arquivo(message: Message):
 
         dados = extrair_dados_livro_epub(
             caminho,
-            ficha_pedido
+            ficha_pedido,
             nome_original_arquivo
         )
 
