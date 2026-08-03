@@ -3093,14 +3093,7 @@ async def atualizar_livro(callback: CallbackQuery):
         return
 
 
-    (
-       nome_livro,
-       autor,
-       nome_livro_antigo,
-       autor_antigo,
-       legenda,
-       mensagem_acervo_id
-   ) = livro
+    nome_livro, autor, legenda, mensagem_acervo_id = livro
 
 
     if not mensagem_acervo_id:
@@ -3109,25 +3102,16 @@ async def atualizar_livro(callback: CallbackQuery):
         )
         return
 
+
     legenda_antiga = legenda or ""
 
 
-    nova_legenda = legenda or ""
+    linhas = legenda_antiga.split("\n")
 
-    if nome_livro_antigo:
-        nova_legenda = nova_legenda.replace(
-            nome_livro_antigo,
-            nome_livro,
-            1
-        )
+    nova_legenda = []
 
-
-    if autor_antigo:
-        nova_legenda = nova_legenda.replace(
-            autor_antigo,
-            autor,
-            1
-        )
+    nome_atualizado = False
+    autor_atualizado = False
 
 
     for linha in linhas:
