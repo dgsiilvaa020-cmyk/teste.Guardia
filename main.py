@@ -2474,17 +2474,29 @@ async def receber_figurinha(message: Message):
         if destino == "traducao":
             grupo_destino = GRUPO_TRADUCAO
             topico_destino = TOPICO_TRADUCAO
+            usar_legenda = False
         else:
             grupo_destino = GRUPO_ACERVO
             topico_destino = None
+            usar_legenda = True
 
-        msg_acervo = await bot.send_photo(
-            chat_id=grupo_destino,
-            message_thread_id=topico_destino,
-            photo=pacote["capa"],
-            caption=caption,
-            parse_mode="HTML"
-        )
+        if usar_legenda:
+
+            msg_acervo = await bot.send_photo(
+                chat_id=grupo_destino,
+                message_thread_id=topico_destino,
+                photo=pacote["capa"],
+                caption=caption,
+                parse_mode="HTML"
+            )
+
+        else:
+
+            msg_acervo = await bot.send_photo(
+                chat_id=grupo_destino,
+                message_thread_id=topico_destino,
+                photo=pacote["capa"]
+            )
 
         # Salva o ID da mensagem enviada e a legenda completa
         cursor.execute("""
@@ -2508,7 +2520,7 @@ async def receber_figurinha(message: Message):
         for arquivo_id in pacote["arquivos"]:
 
             await bot.send_document(
-                hat_id=grupo_destino,
+                chat_id=grupo_destino
                 message_thread_id=topico_destino,
                 document=arquivo_id
             )
@@ -2528,7 +2540,8 @@ async def receber_figurinha(message: Message):
     
 
     await bot.send_sticker(
-        chat_id=GRUPO_ACERVO,
+        chat_id=grupo_destino,
+        message_thread_id=topico_destino,
         sticker=message.sticker.file_id
     )
 
