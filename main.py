@@ -204,8 +204,6 @@ CREATE TABLE IF NOT EXISTS livros_pacotes (
     numero_pacote INTEGER,
     nome_livro TEXT,
     autor TEXT,
-    nome_livro_antigo TEXT,
-    autor_antigo TEXT,
     serie TEXT,
     numero_serie TEXT,
     capa_id TEXT,
@@ -2359,8 +2357,6 @@ async def receber_figurinha(message: Message):
             numero_pacote,
             nome_livro,
             autor,
-            nome_livro_antigo,
-            autor_antigo,
             serie,
             numero_serie,
             capa_id,
@@ -2380,8 +2376,6 @@ async def receber_figurinha(message: Message):
             pacote.get("nome_livro"),
             pacote.get("autor"),
             pacote.get("serie"),
-            pacote.get("nome_livro"),
-            pacote.get("autor"),
             pacote.get("numero_serie"),
             pacote.get("capa"),
             str(pacote.get("arquivos")),
@@ -3084,8 +3078,6 @@ async def atualizar_livro(callback: CallbackQuery):
     SELECT
         nome_livro,
         autor,
-        nome_livro_antigo,
-        autor_antigo,
         legenda,
         mensagem_acervo_id
     FROM livros_pacotes
