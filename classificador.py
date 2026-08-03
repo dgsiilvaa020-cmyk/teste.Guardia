@@ -3,6 +3,21 @@ import re
 
 # classificador.py
 
+def classificar_envio(tipo_envio):
+
+    if tipo_envio == "tradução":
+        return {
+            "grupo": "traducao",
+            "mensagem": (
+                "✨ Feitiço postado no grupo de tradução!\n\n"
+                "🕯️Seu E-book está aqui:"
+            )
+        }
+
+    return {
+        "grupo": "acervo",
+        "mensagem": None
+    }
 
 def definir_destino(pacote):
     """
