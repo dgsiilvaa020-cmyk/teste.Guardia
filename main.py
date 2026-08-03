@@ -5,7 +5,11 @@ import re
 import unicodedata
 import tempfile
 
-from classificador import marcar_tipo_traducao
+from classificador import (
+    marcar_tipo_traducao,
+    definir_destino,
+    mensagem_final_envio
+)
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message, CallbackQuery, BotCommand
@@ -2465,16 +2469,18 @@ async def receber_figurinha(message: Message):
 
         from classificador import definir_destino
 
-
         destino = definir_destino(pacote)
 
         if destino == "traducao":
             grupo_destino = GRUPO_TRADUCAO
+            topico_destino = TOPICO_TRADUCAO
         else:
             grupo_destino = GRUPO_ACERVO
+            topico_destino = None
 
         msg_acervo = await bot.send_photo(
             chat_id=grupo_destino,
+            message_thread_id=topico_destino,
             photo=pacote["capa"],
             caption=caption,
             parse_mode="HTML"
@@ -2495,14 +2501,15 @@ async def receber_figurinha(message: Message):
         conn.commit()
 
         link_acervo = criar_link_mensagem(
-            GRUPO_ACERVO,
+            grupo_destino,
             msg_acervo.message_id
         )
 
         for arquivo_id in pacote["arquivos"]:
 
             await bot.send_document(
-                chat_id=GRUPO_ACERVO,
+                hat_id=grupo_destino,
+                message_thread_id=topico_destino,
                 document=arquivo_id
             )
 
