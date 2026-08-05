@@ -2660,7 +2660,7 @@ async def receber_figurinha(message: Message):
         print("Reação adicionada com sucesso!")
 
     except Exception as e:
-    print("Erro ao adicionar reação:", e)
+        print("Erro ao adicionar reação:", e)
     
 
     pacotes_pendentes.pop(admin_id, None)
