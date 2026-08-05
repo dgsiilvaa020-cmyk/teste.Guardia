@@ -2645,21 +2645,26 @@ async def receber_figurinha(message: Message):
             text=mensagem_concluida,
             reply_to_message_id=grupo_msg_id
         )
+        print("Mensagem enviada com sucesso!")
 
+    except Exception as e:
+        print("Erro ao enviar mensagem:", e)
+
+
+    try:
         await bot.set_message_reaction(
             chat_id=GRUPO_PEDIDOS,
             message_id=grupo_msg_id,
             reaction=[ReactionTypeEmoji(emoji="👍🏽")]
         )
-
-        print("Mensagem enviada com sucesso!")
+        print("Reação adicionada com sucesso!")
 
     except Exception as e:
-        print("ERRO:", e)
+    print("Erro ao adicionar reação:", e)
+    
 
-    
     pacotes_pendentes.pop(admin_id, None)
-    
+
     await message.answer(
         "✅ Arquivo(s) enviados com sucesso!\n\n"
         "🎯 A missão continua aberta.\n"
@@ -2667,7 +2672,6 @@ async def receber_figurinha(message: Message):
         "Quando terminar tudo, toque em ✅ Finalizar missão.",
         reply_markup=menu_missao_acoes(pedido_id)
     )
-
 
 @dp.callback_query(F.data.startswith("cancelar_envio_"))
 async def cancelar_envio(callback: CallbackQuery):
@@ -2728,17 +2732,28 @@ async def nao_encontrei(callback: CallbackQuery):
         nome_livro=extrair_nome_livro(pedido_texto)
     )
 
-    await bot.send_message(
-        chat_id=GRUPO_PEDIDOS,
-        text=mensagem,
-        reply_to_message_id=grupo_msg_id
-    )
+    try:
+        await bot.send_message(
+            chat_id=GRUPO_PEDIDOS,
+            text=mensagem,
+            reply_to_message_id=grupo_msg_id
+        )
+        print("Mensagem de 'não encontrado' enviada.")
 
-    await bot.set_message_reaction(
-        chat_id=GRUPO_PEDIDOS,
-        message_id=grupo_msg_id,
-        reaction=[ReactionTypeEmoji(emoji="👎🏽")]
-    )
+    except Exception as e:
+        print("Erro ao enviar mensagem:", e)
+
+    try:
+        await bot.set_message_reaction(
+            chat_id=GRUPO_PEDIDOS,
+            message_id=grupo_msg_id,
+            reaction=[ReactionTypeEmoji(emoji="👎🏽")]
+        )
+        print("Reação adicionada.")
+
+    except Exception as e:
+        print("Erro ao adicionar reação:", e)
+
 
     sticker_id = pegar_config("sticker_nao_encontrei")
 
@@ -2747,7 +2762,7 @@ async def nao_encontrei(callback: CallbackQuery):
             chat_id=GRUPO_PEDIDOS,
             sticker=sticker_id,
             reply_to_message_id=grupo_msg_id
-)
+        )
 
     cursor.execute("""
     UPDATE pedidos
@@ -2764,7 +2779,6 @@ async def nao_encontrei(callback: CallbackQuery):
         "Ela saiu da lista principal, mas continua guardada.",
         reply_markup=menu_pv()
     )
-
 
 @dp.callback_query(F.data.startswith("voltar_pendente_"))
 async def voltar_pendente(callback: CallbackQuery):
