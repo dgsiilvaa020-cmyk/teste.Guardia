@@ -5,6 +5,8 @@ import re
 import unicodedata
 import tempfile
 
+from aiogram.types import ReactionTypeEmoji
+
 from classificador import (
     marcar_tipo_traducao,
     definir_destino,
@@ -2644,6 +2646,12 @@ async def receber_figurinha(message: Message):
             reply_to_message_id=grupo_msg_id
         )
 
+        await bot.set_message_reaction(
+            chat_id=GRUPO_PEDIDOS,
+            message_id=grupo_msg_id,
+            reaction=[ReactionTypeEmoji(emoji="👍🏽")]
+        )
+
         print("Mensagem enviada com sucesso!")
 
     except Exception as e:
@@ -2724,6 +2732,12 @@ async def nao_encontrei(callback: CallbackQuery):
         chat_id=GRUPO_PEDIDOS,
         text=mensagem,
         reply_to_message_id=grupo_msg_id
+    )
+
+    await bot.set_message_reaction(
+        chat_id=GRUPO_PEDIDOS,
+        message_id=grupo_msg_id,
+        reaction=[ReactionTypeEmoji(emoji="👎🏽")]
     )
 
     sticker_id = pegar_config("sticker_nao_encontrei")
